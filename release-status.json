@@ -1,0 +1,19 @@
+{
+  "candidate_tag": "v0.1.0-alpha",
+  "latest_published": null,
+  "acceptance": {
+    "build": true,
+    "core_tests": true,
+    "mod_startup": true,
+    "world_save_reload": false,
+    "windows_singleplayer": false
+  },
+  "local_artifact": {
+    "path": "build/libs/kingdomsofminecraft-0.1.0-alpha.jar",
+    "sha256": "58a7ea824342f71da88b0ed74cbaf3a65616ea007b994d2fa278f9915a428a48"
+  },
+  "publication_blockers": [
+    "Full world reload and Windows singleplayer acceptance unrun",
+    "Owner must configure required reviewers on milestone-release; integration received HTTP 403"
+  ]
+}

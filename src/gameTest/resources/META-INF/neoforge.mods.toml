@@ -1,0 +1,5 @@
+license="All Rights Reserved"
+[[mods]]
+modId="kingdomsofminecraft_tests"
+version="1.0"
+displayName="Kingdoms integration tests"

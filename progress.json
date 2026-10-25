@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "current_stage": "Foundation",
+  "build_status": "PASS",
+  "latest_release": null,
+  "stages": [
+    {
+      "name": "Foundation",
+      "weight": 5,
+      "deliverables": [
+        {
+          "id": "toolchain_build",
+          "verified": true
+        },
+        {
+          "id": "campaign_storage",
+          "verified": true
+        },
+        {
+          "id": "world_lifecycle",
+          "verified": true
+        },
+        {
+          "id": "ci_checkpoint",
+          "verified": false
+        },
+        {
+          "id": "platform_release_acceptance",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Kingdoms",
+      "weight": 12,
+      "deliverables": [
+        {
+          "id": "dynamic_kingdoms_diplomacy",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Armies",
+      "weight": 13,
+      "deliverables": [
+        {
+          "id": "recruitment_troops_armies",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Battlefield AI",
+      "weight": 17,
+      "deliverables": [
+        {
+          "id": "formations_commands_tactical_map",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Combat and magic",
+      "weight": 13,
+      "deliverables": [
+        {
+          "id": "combat_magic_cavalry",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Settlements and world generation",
+      "weight": 13,
+      "deliverables": [
+        {
+          "id": "settlements_territory_construction",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Sieges",
+      "weight": 9,
+      "deliverables": [
+        {
+          "id": "reversible_siege_conquest",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Economy and civilian simulation",
+      "weight": 9,
+      "deliverables": [
+        {
+          "id": "trade_production_civilians",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "UI and visuals",
+      "weight": 6,
+      "deliverables": [
+        {
+          "id": "finished_interfaces_assets",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "name": "Final integration",
+      "weight": 3,
+      "deliverables": [
+        {
+          "id": "companions_balance_full_acceptance",
+          "verified": false
+        }
+      ]
+    }
+  ]
+}

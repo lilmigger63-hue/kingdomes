@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "kingdomsofminecraft_tests:campaign_lifecycle",
+  "environment": "minecraft:default",
+  "structure": "kingdomsofminecraft_tests:empty",
+  "max_ticks": 800
+}
