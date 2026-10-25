@@ -24,3 +24,12 @@ Unrun: Windows singleplayer, graphics/FPS benchmarks, all future gameplay system
 ## Manual acceptance still needed
 
 On Windows with Java 25 and the target NeoForge/Minecraft versions, start the client, create world A, run `/kingdoms status`, play, save/quit, and reopen A. Confirm its persisted step continues. Switch to world B, then back to A in the same client and verify each state remains independent. Verify normal survival exploration/mining/crafting still works and inspect logs for errors. Record actual results before changing acceptance flags or tagging a milestone.
+
+## GitHub checkpoint
+
+- Confirmed source push: `dc081212c15ee69e56916afa3018970f9b237390` on `development/foundation`; remote ref matched local HEAD after push.
+- Draft PR: https://github.com/lilmigger63-hue/kingdomes/pull/1 (main remains unchanged).
+- GitHub Build: https://github.com/lilmigger63-hue/kingdomes/actions/runs/40183584762 — completed SUCCESS; includes full build, two-session campaign integration and development JAR artifact upload.
+- GitHub Core contracts: https://github.com/lilmigger63-hue/kingdomes/actions/runs/40183584848 — completed SUCCESS.
+- PR status checks independently confirmed all build/persistence jobs succeeded on the source commit. Detailed hosted log download was unavailable through the current network route; conclusions and successful steps were verified through the GitHub API.
+- No tag or release was published. A documentation-only follow-up records this evidence; production source is unchanged from the tested commit.

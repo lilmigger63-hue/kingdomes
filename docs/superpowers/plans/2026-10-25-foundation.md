@@ -13,7 +13,9 @@ Only lilmigger63-hue/kingdomes is an authorized upload destination. Preserve sur
 - [x] Write campaign storage tests: roundtrip, truncated data, unsupported versions, invalid counters and atomic replacement. Observe failure, implement and rerun.
 - [x] Integrate tested storage with world lifecycle only after checking actual 26.1.2 APIs; verify controlled campaign restart in two GameTest servers. Full world/client reload remains separate manual acceptance.
 - [x] Add build/test/release workflows; restrict release to a verified milestone tag and approved environment.
-- [ ] Update state documents, commit and push validated work; retain artifacts if publication is blocked.
+- [x] Update state documents, commit and push validated work; retain artifacts if publication is blocked.
+
+Checkpoint: draft PR #1, GitHub CI passed. Milestone publication remains blocked by manual platform/world acceptance and repository release environment protection.
 
 ## Review focus
 Corrupt saves must fail explicitly without replacement. Future schemas must not be silently downgraded. Separate worlds must not share state. Interrupted writes must preserve the prior save. Headless tests do not establish Windows gameplay or performance.

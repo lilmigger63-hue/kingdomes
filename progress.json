@@ -22,7 +22,7 @@
         },
         {
           "id": "ci_checkpoint",
-          "verified": false
+          "verified": true
         },
         {
           "id": "platform_release_acceptance",

@@ -14,3 +14,5 @@ No release or automated continuation is claimed. Token usage is unavailable.
 Final local validation: 18 Java checks, 3 Python tests, full build, repeatable setup and two selected Minecraft test sessions passed. Controlled restart steps: 0 → 233 → 233 → 411. No definite blocking defect from independent review.
 
 Ruling: restore campaign data only inside the isolated test mod to validate production startup after GameTest resets its universe; full vanilla world/client reload remains unaccepted. Required repository release-environment configuration is owner action because the integration received HTTP 403.
+
+Confirmed source push dc081212c15ee69e56916afa3018970f9b237390 and draft PR #1. GitHub Build and Core contracts succeeded on fresh runners. Verified weighted progress: 4.0% (four of five foundation acceptance groups, all later stages unfinished). No release; platform acceptance and owner-configured required reviewer protection remain pending.
