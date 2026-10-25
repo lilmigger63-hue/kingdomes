@@ -16,3 +16,9 @@ Final local validation: 18 Java checks, 3 Python tests, full build, repeatable s
 Ruling: restore campaign data only inside the isolated test mod to validate production startup after GameTest resets its universe; full vanilla world/client reload remains unaccepted. Required repository release-environment configuration is owner action because the integration received HTTP 403.
 
 Confirmed source push dc081212c15ee69e56916afa3018970f9b237390 and draft PR #1. GitHub Build and Core contracts succeeded on fresh runners. Verified weighted progress: 4.0% (four of five foundation acceptance groups, all later stages unfinished). No release; platform acceptance and owner-configured required reviewer protection remain pending.
+
+## 2026-10-25 — Kingdom founding slice
+
+Implemented seed-based clan founding of 11–20 realms, immutable identity constraints, cultures/rulers/banner definitions, schema 2 storage with explicit schema 1 migration and /kingdoms list. Verified 1,450 Java checks, three release-gate tests, full build and two selected Minecraft sessions with custom record preservation. Reviewed independently; strengthened restart test to expose accidental regeneration.
+
+Ruling: continue independent kingdom implementation while manual foundation release checks remain pending; no release milestone is marked complete. Kingdoms stage split into six transparent acceptance groups; only founding records/persistence count as verified (2 percentage points, total 6%). Generated heraldry and rulers are definitions, not rendered banners or physical NPC entities. Next: persistent diplomacy and clan relationships.

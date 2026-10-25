@@ -1,6 +1,8 @@
 package com.kingdomsofminecraft.testing;
 
 import com.kingdomsofminecraft.persistence.CampaignStore;
+import com.kingdomsofminecraft.campaign.*;
+import java.util.ArrayList;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +41,13 @@ public final class CampaignGameTests {
         try {
             Files.createDirectories(target.getParent());
             Files.copy(Path.of(source), target, StandardCopyOption.REPLACE_EXISTING);
+            // Make re-generating initial records on production startup observable.
+            var store = new CampaignStore(target);
+            var previous = store.loadOrCreate(Long.MIN_VALUE);
+            var edited = new ArrayList<>(previous.kingdoms());
+            var first = edited.getFirst();
+            edited.set(0, new Kingdom(first.id(), "Kept Across Restart", first.founder(), new Banner(0x102030, 0x405060, 7)));
+            store.save(new CampaignState(previous.worldSeed(), previous.simulationStep(), edited));
         } catch (IOException error) {
             throw new IllegalStateException("Cannot restore integration campaign fixture", error);
         }
@@ -50,6 +59,8 @@ public final class CampaignGameTests {
             int result = server.getCommands().getDispatcher().execute(
                     "kingdoms status", server.createCommandSourceStack());
             helper.assertTrue(result == 1, "Campaign status must be registered and loaded");
+            int count = server.getCommands().getDispatcher().execute("kingdoms list", server.createCommandSourceStack());
+            helper.assertTrue(count >= 11 && count <= 20, "World must contain 11–20 NPC-founded kingdoms");
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException error) {
             throw helper.assertionException("Status command failed: " + error.getMessage());
         }
@@ -62,6 +73,19 @@ public final class CampaignGameTests {
                 var saved = new CampaignStore(file).loadOrCreate(Long.MIN_VALUE);
                 helper.assertTrue(saved.worldSeed() == server.overworld().getSeed(), "Campaign must use owning world seed");
                 helper.assertTrue(saved.simulationStep() >= 30, "Campaign must advance and autosave");
+                helper.assertTrue(saved.kingdoms().size() >= 11 && saved.kingdoms().size() <= 20, "Kingdom records must persist");
+                String fixture = System.getProperty("kingdomsofminecraft.reloadFixture");
+                if (fixture != null) {
+                    var previous = new CampaignStore(Path.of(fixture)).loadOrCreate(Long.MIN_VALUE);
+                    helper.assertTrue(saved.simulationStep() > previous.simulationStep(), "Restart must advance the persisted clock");
+                    var first = saved.kingdoms().getFirst();
+                    helper.assertTrue(first.name().equals("Kept Across Restart"), "Restart must preserve custom kingdom name");
+                    helper.assertTrue(first.banner().equals(new Banner(0x102030, 0x405060, 7)), "Restart must preserve custom banner");
+                    helper.assertTrue(first.id() == previous.kingdoms().getFirst().id()
+                            && first.founder().equals(previous.kingdoms().getFirst().founder()), "Restart must preserve founding clan");
+                    helper.assertTrue(saved.kingdoms().subList(1, saved.kingdoms().size())
+                            .equals(previous.kingdoms().subList(1, previous.kingdoms().size())), "Restart must preserve other kingdoms");
+                }
                 helper.succeed();
             } catch (IOException error) {
                 throw helper.assertionException("Campaign autosave could not be read: " + error.getMessage());

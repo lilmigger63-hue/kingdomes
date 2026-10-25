@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "Foundation",
+  "current_stage": "Kingdoms (foundation release acceptance pending)",
   "build_status": "PASS",
   "latest_release": null,
   "stages": [
@@ -35,7 +35,27 @@
       "weight": 12,
       "deliverables": [
         {
-          "id": "dynamic_kingdoms_diplomacy",
+          "id": "founding_records_and_persistence",
+          "verified": true
+        },
+        {
+          "id": "clan_vassal_relationships",
+          "verified": false
+        },
+        {
+          "id": "capitals_settlements_territorial_claims",
+          "verified": false
+        },
+        {
+          "id": "strategic_war_peace",
+          "verified": false
+        },
+        {
+          "id": "political_influence_decisions",
+          "verified": false
+        },
+        {
+          "id": "kingdoms_integration_release",
           "verified": false
         }
       ]

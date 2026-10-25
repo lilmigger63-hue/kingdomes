@@ -23,6 +23,16 @@ public final class CampaignStoreTest {
             store.save(new CampaignState(42, 800));
             check(store.loadOrCreate(99).simulationStep() == 800, "replacement persists newest state");
             byte[] valid = Files.readAllBytes(save);
+            byte[] legacy = new byte[32];
+            ByteBuffer.wrap(legacy).putInt(0x4b4f4d43).putInt(1).putLong(-18).putLong(456);
+            java.util.zip.CRC32 legacyCrc = new java.util.zip.CRC32(); legacyCrc.update(legacy, 0, 24);
+            ByteBuffer.wrap(legacy).putLong(24, legacyCrc.getValue());
+            Files.write(save, legacy);
+            check(store.loadOrCreate(999).equals(new CampaignState(-18,456)), "schema 1 migration preserves seed, time and seeds kingdoms");
+            check(Arrays.equals(Files.readAllBytes(save), legacy), "migration must not rewrite during load");
+            store.save(store.loadOrCreate(999));
+            check(ByteBuffer.wrap(Files.readAllBytes(save)).getInt(4) == 2, "next save upgrades schema");
+            Files.write(save, valid);
             Files.write(save, Arrays.copyOf(valid, 6));
             rejects(() -> store.loadOrCreate(42), IOException.class, "truncated save");
             check(Files.size(save) == 6, "invalid save must not be overwritten");
@@ -35,8 +45,8 @@ public final class CampaignStoreTest {
             rejects(() -> store.loadOrCreate(42), IOException.class, "invalid header");
             byte[] negative = valid.clone();
             ByteBuffer.wrap(negative).putLong(16, -1);
-            java.util.zip.CRC32 crc = new java.util.zip.CRC32(); crc.update(negative, 0, 24);
-            ByteBuffer.wrap(negative).putLong(24, crc.getValue());
+            java.util.zip.CRC32 crc = new java.util.zip.CRC32(); crc.update(negative, 0, negative.length - 8);
+            ByteBuffer.wrap(negative).putLong(negative.length - 8, crc.getValue());
             Files.write(save, negative);
             rejects(() -> store.loadOrCreate(42), IOException.class, "negative persisted time");
             byte[] corrupt = valid.clone(); corrupt[15] ^= 1;
@@ -57,6 +67,8 @@ public final class CampaignStoreTest {
                 check(paths.noneMatch(p -> p.getFileName().toString().endsWith(".tmp")), "failed write cleans temporary files");
             }
             System.out.println("PASS: " + passed + " campaign persistence checks");
+            KingdomFoundingTest.main(args);
+            SaveSchemaTest.main(args);
         } finally {
             try (var paths = Files.walk(dir)) {
                 for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(path);

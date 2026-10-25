@@ -33,3 +33,12 @@ On Windows with Java 25 and the target NeoForge/Minecraft versions, start the cl
 - GitHub Core contracts: https://github.com/lilmigger63-hue/kingdomes/actions/runs/40183584848 — completed SUCCESS.
 - PR status checks independently confirmed all build/persistence jobs succeeded on the source commit. Detailed hosted log download was unavailable through the current network route; conclusions and successful steps were verified through the GitHub API.
 - No tag or release was published. A documentation-only follow-up records this evidence; production source is unchanged from the tested commit.
+
+## Kingdom founding slice — 2026-10-25
+
+- Test-first custom-founded save roundtrip failed against schema 1 storage, then passed with schema 2. Core suite: 21 persistence checks, 1,411 founding checks across 200 seeds/invariants, 18 malformed-save checks (1,450 Java checks total). Three Python release-gate tests pass.
+- Schema 1 fixture preserves literal seed -18 and step 456, is not rewritten by load, and upgrades on the next save. Custom-founded state survives storage without regenerating initial kingdoms. Bounded/count/culture/name/ID corruption fixtures all reject without altering input files.
+- Full NeoForge build passed. Exactly one selected Minecraft test passed in each of two server sessions, including /kingdoms list, kingdom autosave and restart from 881 to 970.
+- Review identified a regeneration blind spot in the original restart test. The strengthened test first failed with the custom fixture, then passed after asserting the fixture's literal custom name/banner, preserved founding clan and unchanged other records. A stored-clock reset is checked by both the game test and runner's startup/shutdown comparison. No production correctness defect was reported by the read-only reviewer.
+- GameTest still resets its universe: these checks establish campaign-record lifecycle persistence, not full vanilla world/client reload or Windows singleplayer. Release flags for those checks remain false. No release or tag created.
+- New source CI will be checked separately after push; prior source CI success is not claimed for this slice.

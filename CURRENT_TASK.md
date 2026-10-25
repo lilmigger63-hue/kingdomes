@@ -1,15 +1,13 @@
 # Current task
 
-Stage: Foundation (0.1.0-alpha candidate, unreleased).
+Stage: Kingdoms — founding-record slice (milestone incomplete). Foundation platform/release acceptance remains pending.
 
-Completed locally: official MDK and Java 25 setup; campaign clock and file storage; 18 core checks; three release-gate tests; full NeoForge build; isolated Minecraft status/autosave test and controlled campaign restart across two server processes.
+Implemented: deterministic 11–20 clan-founded realms, six culture/race identities, rulers and heraldry definitions, immutable dynamic founding with identity/cap checks, schema 2 persistence and explicit schema 1 migration, `/kingdoms list`. No physical faction NPCs or diplomacy/territory yet.
 
-Checkpoint: tested foundation pushed as dc081212c15ee69e56916afa3018970f9b237390; draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. GitHub Build and Core contracts checks passed on that source. A later documentation-only checkpoint records these results. Repeatable setup and independent source review completed. Controlled campaign restart passed; full vanilla world reload is still unrun.
+Tests: 21 persistence checks, 1,411 founding checks across 200 seeds and invariants, 18 malformed-save checks; 3 Python release-gate tests. Full build passed. Custom-record Minecraft restart passed in two actual server sessions (0 → 881 → 881 → 970); the restored custom name/banner and other founder records survived. See VALIDATION.md.
 
-Active foundation acceptance: perform full vanilla world/client reload and Windows singleplayer checks and configure release-environment required reviewers. Do not mark 0.1.0-alpha released until these prerequisites and the guarded release workflow pass.
+Continue: implement strategic diplomacy and separate clan/vassal relationships using persistent state and tests. Then connect settlement ownership and influence decisions; prioritize the early two-faction playable slice before expanding troop content.
 
-Release prerequisites: Windows singleplayer create/save/reload and manual gameplay validation; required reviewers on milestone-release GitHub environment; no release tag before recorded acceptance.
+Release prerequisites unchanged: full vanilla world/client reload, Windows singleplayer validation, and owner-configured required reviewers in GitHub milestone-release environment. No tag or release has been published. No scheduling tool is available; AUTO_RESUME.md documents manual continuation.
 
-Next gameplay work: deterministic culture/clan/kingdom model and save schema expansion, then the early two-faction playable slice. Full specification in docs/MASTER_PROMPT.md.
-
-No scheduled continuation configured; see AUTO_RESUME.md. No authoritative token counter. Do not claim milestone completion from core tests alone.
+Branch development/foundation, draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. Use git HEAD and remote refs as the exact checkpoint. Do not redo completed foundation work or claim full Kingdoms milestone completion. Actual token usage unavailable.

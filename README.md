@@ -2,7 +2,7 @@
 
 ## Kingdoms of Minecraft
 
-An incremental Minecraft **26.1.2** mod for **NeoForge 26.1.2.122**, using **Java 25**, ModDevGradle **2.0.148** and Gradle **9.2.1**. Full requirements: [master prompt](docs/MASTER_PROMPT.md). The large gameplay roadmap is unfinished; this branch starts the foundation.
+An incremental Minecraft **26.1.2** mod for **NeoForge 26.1.2.122**, using **Java 25**, ModDevGradle **2.0.148** and Gradle **9.2.1**. Full requirements: [master prompt](docs/MASTER_PROMPT.md). The large gameplay roadmap is unfinished; this branch contains the foundation and the first persistent kingdom-founding slice.
 
 ### Development
 
@@ -10,7 +10,7 @@ Use a JDK 25, then run `./gradlew build` (`gradlew.bat build` on Windows). `./sc
 
 In Codex cloud, run `./scripts/cloud-setup.sh`; afterward use `python3 scripts/gradle-cloud.py <task>` to preserve platform proxy and certificate trust. TLS and artifact checksums remain enabled. No credentials are stored in the repository.
 
-For manual play, use `./gradlew runClient`, create a test world, and run `/kingdoms status`. Wait for the clock to advance, save and exit, then reload and verify the saved step continues. The current foundation does not yet add factions, recruitment, armies or other gameplay content.
+For manual play, use `./gradlew runClient`, create a test world, and run `/kingdoms status`. Wait for the clock to advance, save and exit, then reload and verify the saved step continues. `/kingdoms list` displays the 11–20 stored kingdoms and their founding clans, rulers and cultures. The current build does not spawn faction NPCs or implement recruitment, armies, territory or diplomacy.
 
 ### Progress and continuation
 

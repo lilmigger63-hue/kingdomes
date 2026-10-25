@@ -72,8 +72,21 @@ public final class KingdomsOfMinecraft {
                         return 0;
                     }
                     context.getSource().sendSuccess(() -> Component.literal(
-                            "Kingdoms campaign step: " + state.simulationStep()), false);
+                            "Kingdoms campaign step: " + state.simulationStep() + "; kingdoms: " + state.kingdoms().size()), false);
                     return 1;
+                }))
+                .then(Commands.literal("list").executes(context -> {
+                    if (state == null) {
+                        context.getSource().sendFailure(Component.literal("Campaign is not loaded"));
+                        return 0;
+                    }
+                    for (var kingdom : state.kingdoms()) {
+                        var clan = kingdom.founder();
+                        context.getSource().sendSuccess(() -> Component.literal(kingdom.name()
+                                + " — " + clan.name() + ", ruled by " + clan.ruler()
+                                + " (" + clan.culture().tradition() + ", " + clan.culture().race() + ")"), false);
+                    }
+                    return state.kingdoms().size();
                 })));
     }
 }

@@ -1,25 +1,21 @@
 package com.kingdomsofminecraft.persistence;
 
-import com.kingdomsofminecraft.campaign.CampaignState;
-import java.io.IOException;
+import com.kingdomsofminecraft.campaign.*;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.zip.CRC32;
 
-/** Versioned, checksummed storage. Unsupported or corrupt saves are never reset silently.
- * Call on the owning server thread. Atomic replacement is required; no unsafe fallback.
+/** Bounded, checksummed storage with explicit migration and atomic replacement.
+ * Call on the owning server thread. Unknown/corrupt saves never reset silently.
  */
 public final class CampaignStore {
     private static final int MAGIC = 0x4b4f4d43;
-    private static final int SCHEMA = 1;
-    private static final int PAYLOAD_BYTES = 24;
-    private static final int FILE_BYTES = 32;
+    private static final int SCHEMA = 2;
+    private static final int MAX_FILE_BYTES = 65536;
     private final Path file;
 
     public CampaignStore(Path file) {
@@ -29,38 +25,61 @@ public final class CampaignStore {
     public CampaignState loadOrCreate(long seed) throws IOException {
         byte[] data;
         try (var input = Files.newInputStream(file)) {
-            data = input.readNBytes(FILE_BYTES + 1);
+            data = input.readNBytes(MAX_FILE_BYTES + 1);
         } catch (NoSuchFileException missing) {
             return new CampaignState(seed, 0);
         }
-        if (data.length != FILE_BYTES) throw new IOException("Invalid campaign save length: " + file);
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        if (buffer.getInt() != MAGIC) throw new IOException("Invalid campaign save header: " + file);
-        int schema = buffer.getInt();
-        // Schema 1 is the first format. Future versions must introduce explicit migrations.
-        if (schema != SCHEMA) throw new IOException("Unsupported campaign schema " + schema + ": " + file);
-        CRC32 checksum = new CRC32();
-        checksum.update(data, 0, PAYLOAD_BYTES);
-        if (buffer.getLong(PAYLOAD_BYTES) != checksum.getValue()) throw new IOException("Campaign checksum mismatch: " + file);
-        long worldSeed = buffer.getLong();
-        long step = buffer.getLong();
-        if (step < 0) throw new IOException("Invalid campaign time: " + file);
-        return new CampaignState(worldSeed, step);
+        if (data.length < 32 || data.length > MAX_FILE_BYTES) throw new IOException("Invalid campaign save length: " + file);
+        int payloadSize = data.length - Long.BYTES;
+        CRC32 checksum = new CRC32(); checksum.update(data, 0, payloadSize);
+        if (ByteBuffer.wrap(data).getLong(payloadSize) != checksum.getValue()) throw new IOException("Campaign checksum mismatch: " + file);
+        try (var input = new DataInputStream(new ByteArrayInputStream(data, 0, payloadSize))) {
+            if (input.readInt() != MAGIC) throw new IOException("Invalid campaign save header: " + file);
+            int schema = input.readInt();
+            if (schema != 1 && schema != SCHEMA) throw new IOException("Unsupported campaign schema " + schema + ": " + file);
+            long worldSeed = input.readLong(); long step = input.readLong();
+            if (schema == 1) {
+                if(input.available() != 0) throw new IOException("Invalid schema 1 save length");
+                return new CampaignState(worldSeed, step);
+            }
+            int count = input.readInt();
+            if (count < 0 || count > 20) throw new IOException("Invalid kingdom count");
+            var kingdoms = new ArrayList<Kingdom>(count);
+            for(int i=0;i<count;i++) {
+                int id=input.readInt(); String name=input.readUTF();
+                var clan=new Clan(input.readInt(), input.readUTF(), input.readUTF(), Culture.valueOf(input.readUTF()));
+                var banner=new Banner(input.readInt(), input.readInt(), input.readInt());
+                kingdoms.add(new Kingdom(id, name, clan, banner));
+            }
+            if(input.available() != 0) throw new IOException("Trailing campaign data");
+            return new CampaignState(worldSeed, step, kingdoms);
+        } catch (IllegalArgumentException | NullPointerException error) {
+            throw new IOException("Invalid campaign data: " + file, error);
+        }
     }
 
     public void save(CampaignState state) throws IOException {
         Objects.requireNonNull(state);
-        byte[] data = new byte[FILE_BYTES];
-        ByteBuffer buffer = ByteBuffer.wrap(data);
-        buffer.putInt(MAGIC).putInt(SCHEMA).putLong(state.worldSeed()).putLong(state.simulationStep());
-        CRC32 checksum = new CRC32();
-        checksum.update(data, 0, PAYLOAD_BYTES);
-        buffer.putLong(checksum.getValue());
+        var bytes = new ByteArrayOutputStream();
+        try (var output=new DataOutputStream(bytes)) {
+            output.writeInt(MAGIC); output.writeInt(SCHEMA);
+            output.writeLong(state.worldSeed()); output.writeLong(state.simulationStep());
+            output.writeInt(state.kingdoms().size());
+            for(var kingdom:state.kingdoms()) {
+                output.writeInt(kingdom.id()); output.writeUTF(kingdom.name());
+                var clan=kingdom.founder();
+                output.writeInt(clan.id()); output.writeUTF(clan.name()); output.writeUTF(clan.ruler()); output.writeUTF(clan.culture().name());
+                output.writeInt(kingdom.banner().primaryColor()); output.writeInt(kingdom.banner().secondaryColor()); output.writeInt(kingdom.banner().sigil());
+            }
+            CRC32 checksum=new CRC32(); checksum.update(bytes.toByteArray()); output.writeLong(checksum.getValue());
+        }
+        byte[] data=bytes.toByteArray();
+        if (data.length > MAX_FILE_BYTES) throw new IOException("Campaign exceeds save size limit");
         Files.createDirectories(file.getParent());
         Path temporary = Files.createTempFile(file.getParent(), file.getFileName().toString(), ".tmp");
         try {
             try (FileChannel channel = FileChannel.open(temporary, StandardOpenOption.WRITE)) {
-                buffer.flip();
+                var buffer=ByteBuffer.wrap(data);
                 while (buffer.hasRemaining()) channel.write(buffer);
                 channel.force(true);
             }
