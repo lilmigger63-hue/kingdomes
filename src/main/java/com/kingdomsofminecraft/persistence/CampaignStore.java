@@ -14,7 +14,7 @@ import java.util.zip.CRC32;
  */
 public final class CampaignStore {
     private static final int MAGIC = 0x4b4f4d43;
-    private static final int SCHEMA = 2;
+    private static final int SCHEMA = 3;
     private static final int MAX_FILE_BYTES = 65536;
     private final Path file;
 
@@ -36,7 +36,7 @@ public final class CampaignStore {
         try (var input = new DataInputStream(new ByteArrayInputStream(data, 0, payloadSize))) {
             if (input.readInt() != MAGIC) throw new IOException("Invalid campaign save header: " + file);
             int schema = input.readInt();
-            if (schema != 1 && schema != SCHEMA) throw new IOException("Unsupported campaign schema " + schema + ": " + file);
+            if (schema < 1 || schema > SCHEMA) throw new IOException("Unsupported campaign schema " + schema + ": " + file);
             long worldSeed = input.readLong(); long step = input.readLong();
             if (schema == 1) {
                 if(input.available() != 0) throw new IOException("Invalid schema 1 save length");
@@ -51,8 +51,27 @@ public final class CampaignStore {
                 var banner=new Banner(input.readInt(), input.readInt(), input.readInt());
                 kingdoms.add(new Kingdom(id, name, clan, banner));
             }
+            if (schema == 2) {
+                if(input.available() != 0) throw new IOException("Trailing schema 2 data");
+                return new CampaignState(worldSeed, step, kingdoms);
+            }
+            int clanCount = input.readInt();
+            if (clanCount < 0 || clanCount > 64) throw new IOException("Invalid clan count");
+            var allegiances = new ArrayList<ClanAllegiance>(clanCount);
+            for (int i=0;i<clanCount;i++) {
+                var clan=new Clan(input.readInt(), input.readUTF(), input.readUTF(), Culture.valueOf(input.readUTF()));
+                allegiances.add(new ClanAllegiance(clan, input.readInt()));
+            }
+            int treatyCount = input.readInt();
+            if (treatyCount < 0 || treatyCount > 190) throw new IOException("Invalid treaty count");
+            var treaties = new ArrayList<Treaty>(treatyCount);
+            for (int i=0;i<treatyCount;i++) {
+                int first=input.readInt(), second=input.readInt(), war=input.readUnsignedByte();
+                if (war > 1) throw new IOException("Invalid war flag");
+                treaties.add(new Treaty(first, second, war==1, input.readLong()));
+            }
             if(input.available() != 0) throw new IOException("Trailing campaign data");
-            return new CampaignState(worldSeed, step, kingdoms);
+            return new CampaignState(worldSeed, step, kingdoms, allegiances, treaties);
         } catch (IllegalArgumentException | NullPointerException error) {
             throw new IOException("Invalid campaign data: " + file, error);
         }
@@ -70,6 +89,16 @@ public final class CampaignStore {
                 var clan=kingdom.founder();
                 output.writeInt(clan.id()); output.writeUTF(clan.name()); output.writeUTF(clan.ruler()); output.writeUTF(clan.culture().name());
                 output.writeInt(kingdom.banner().primaryColor()); output.writeInt(kingdom.banner().secondaryColor()); output.writeInt(kingdom.banner().sigil());
+            }
+            output.writeInt(state.allegiances().size());
+            for (var allegiance : state.allegiances()) {
+                var clan=allegiance.clan();
+                output.writeInt(clan.id()); output.writeUTF(clan.name()); output.writeUTF(clan.ruler()); output.writeUTF(clan.culture().name());
+                output.writeInt(allegiance.kingdomId());
+            }
+            output.writeInt(state.treaties().size());
+            for (var treaty : state.treaties()) {
+                output.writeInt(treaty.first()); output.writeInt(treaty.second()); output.writeBoolean(treaty.war()); output.writeLong(treaty.changedAt());
             }
             CRC32 checksum=new CRC32(); checksum.update(bytes.toByteArray()); output.writeLong(checksum.getValue());
         }

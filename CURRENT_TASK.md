@@ -1,13 +1,13 @@
 # Current task
 
-Stage: Kingdoms — founding-record slice (milestone incomplete). Foundation platform/release acceptance remains pending.
+Stage: Kingdoms — political state slice (milestone incomplete). Foundation platform/release acceptance remains pending.
 
-Implemented: deterministic 11–20 clan-founded realms, six culture/race identities, rulers and heraldry definitions, immutable dynamic founding with identity/cap checks, schema 2 persistence and explicit schema 1 migration, `/kingdoms list`. No physical faction NPCs or diplomacy/territory yet.
+Completed: 11–20 persistent kingdom foundations; clan allegiance with join/transfer constraints and ruling-clan protection; symmetric, idempotent war/peace treaty transitions and timestamps; schema 3 storage with explicit schema 1/2 migration. /kingdoms list and /kingdoms politics inspect state. All political changes are core operations; autonomous diplomatic decisions and player political actions are not implemented.
 
-Tests: 21 persistence checks, 1,411 founding checks across 200 seeds and invariants, 18 malformed-save checks; 3 Python release-gate tests. Full build passed. Custom-record Minecraft restart passed in two actual server sessions (0 → 881 → 881 → 970); the restored custom name/banner and other founder records survived. See VALIDATION.md.
+Verification: full build; 1,483 Java checks (21 persistence, 1,411 founding, 30 malformed-save, 21 politics); three release-gate tests. Two selected Minecraft sessions preserve a custom vassal/war treaty, including treaty timestamp, and resume clock 98 → 198. Independent read-only review found no important defect. Source CI is checked separately after push.
 
-Continue: implement strategic diplomacy and separate clan/vassal relationships using persistent state and tests. Then connect settlement ownership and influence decisions; prioritize the early two-faction playable slice before expanding troop content.
+Next: settlement/capital records and coarse territorial claims to supply actual strategic inputs, then army strength/supplies before autonomous war/peace decisions. Do not introduce arbitrary war timers or pretend absent strategic data exists. Continue the early playable slice with recruitment and commandable troops after political foundations.
 
-Release prerequisites unchanged: full vanilla world/client reload, Windows singleplayer validation, and owner-configured required reviewers in GitHub milestone-release environment. No tag or release has been published. No scheduling tool is available; AUTO_RESUME.md documents manual continuation.
+Release prerequisites unchanged: full vanilla world/client reload, Windows singleplayer checks, owner-configured required reviewers on milestone-release. No release/tag or scheduler is enabled.
 
-Branch development/foundation, draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. Use git HEAD and remote refs as the exact checkpoint. Do not redo completed foundation work or claim full Kingdoms milestone completion. Actual token usage unavailable.
+Branch development/foundation; draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. Exact checkpoint: git HEAD/remote ref. Token counters unavailable. Preserve existing work; do not recreate the foundation.

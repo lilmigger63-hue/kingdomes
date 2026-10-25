@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Separate clan allegiances, protected ruling clans and validated vassal transfers.
+- Symmetric war/peace treaty state and `/kingdoms politics` inspection.
+- Schema 3 with explicit schema 1/2 migration and bounded political state.
 - Persistent seed-based kingdom founding: clans, rulers, cultures, heraldry definitions and `/kingdoms list`.
 - Explicit clock-only schema 1 migration to bounded kingdom-record schema 2.
 - Seed-sweep/invariant tests, malformed schema fixtures and custom kingdom restart validation.

@@ -11,3 +11,12 @@ The temporary file is forced before atomic replacement. Unsupported atomic repla
 Strategic armies, settlements and populations will remain simulation data. Physical entities must be bounded projections of that data, with no duplicate troop ownership. No chunk loading or global scans are introduced by the foundation.
 
 Tests under `src/coreTest` exercise real files without external libraries. Gradle `check` invokes `coreTest`; `scripts/test-core.sh` runs the same tests independently.
+
+
+## Political state / schema 3
+
+CampaignState owns a separate allegiance registry (at most 64 clans). Founders must retain matching clan records and remain in their own kingdoms; other clans can join/transfer but never belong to multiple realms. New founding and clock advancement preserve existing vassals/treaties. Diplomacy is one canonical unordered record per kingdom pair, at most 190. Omitted pairs are peaceful; war/peace changes use the campaign clock, and repeated declarations preserve their original timestamp. Unknown/self pairs, duplicate records and future treaty times are rejected.
+
+Schema 3 keeps the schema 2 kingdom payload, then stores clan count and records (clan ID/names/culture plus kingdom ID), followed by treaty count and records (two IDs, canonical byte 0/1 for war and changed-at long), then checksum. Schema 2 migrates by assigning founders to their kingdoms and starting at peace; schema 1 additionally generates initial kingdoms. Neither migration writes on load. File bound remains 64 KiB; maximal valid state with long multibyte names roundtrips in tests. Old builds cannot read schema 3.
+
+`/kingdoms politics` is read-only. There is no autonomous diplomacy yet: real military, territory and economy inputs must drive that later. No arbitrary war timers are substituted for absent strategy.

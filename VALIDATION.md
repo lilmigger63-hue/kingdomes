@@ -42,3 +42,11 @@ On Windows with Java 25 and the target NeoForge/Minecraft versions, start the cl
 - Review identified a regeneration blind spot in the original restart test. The strengthened test first failed with the custom fixture, then passed after asserting the fixture's literal custom name/banner, preserved founding clan and unchanged other records. A stored-clock reset is checked by both the game test and runner's startup/shutdown comparison. No production correctness defect was reported by the read-only reviewer.
 - GameTest still resets its universe: these checks establish campaign-record lifecycle persistence, not full vanilla world/client reload or Windows singleplayer. Release flags for those checks remain false. No release or tag created.
 - New source CI will be checked separately after push; prior source CI success is not claimed for this slice.
+
+## Political state slice — 2026-10-25
+
+- Test-first suite failed when schema 2 discarded the custom vassal and war treaty, then passed with schema 3. Final Java suite: 21 persistence + 1,411 founding + 30 malformed-save + 21 political checks (1,483 total). Existing three Python release-gate tests pass.
+- Clan transfer, ruler protection, unknown/duplicate references, symmetric/idempotent transitions, future treaty time rejection and preservation through ticking/new founding are exercised. Full 64-clan/190-treaty capacity with long three-byte Unicode names fits the 64 KiB bound and roundtrips.
+- Hand-built schema 2 fixture preserves custom kingdom/clan IDs and names, seed/time and original file bytes during migration. Schema 1 migration remains covered. Invalid political counts/flags are rejected without rewriting.
+- Full NeoForge build passed. Two selected Minecraft GameTest sessions verify /kingdoms politics and preserve a custom vassal, war treaty and transition time through production startup and autosave; clock 0 → 98 → 98 → 198. GameTest's reset universe still precludes claiming full vanilla world/client reload.
+- Independent read-only review found no important actionable defect. No autonomous diplomacy, player political actions or release completion claimed. Source GitHub CI is checked after push and is separate from local results.

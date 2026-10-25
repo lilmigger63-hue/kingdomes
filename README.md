@@ -10,7 +10,7 @@ Use a JDK 25, then run `./gradlew build` (`gradlew.bat build` on Windows). `./sc
 
 In Codex cloud, run `./scripts/cloud-setup.sh`; afterward use `python3 scripts/gradle-cloud.py <task>` to preserve platform proxy and certificate trust. TLS and artifact checksums remain enabled. No credentials are stored in the repository.
 
-For manual play, use `./gradlew runClient`, create a test world, and run `/kingdoms status`. Wait for the clock to advance, save and exit, then reload and verify the saved step continues. `/kingdoms list` displays the 11–20 stored kingdoms and their founding clans, rulers and cultures. The current build does not spawn faction NPCs or implement recruitment, armies, territory or diplomacy.
+For manual play, use `./gradlew runClient`, create a test world, and run `/kingdoms status`. Wait for the clock to advance, save and exit, then reload and verify the saved step continues. `/kingdoms list` displays the 11–20 stored kingdoms and their founding clans, rulers and cultures. The current build does not spawn faction NPCs or implement recruitment, armies, territory or autonomous diplomacy. `/kingdoms politics` lists clan allegiances and recorded treaties; core war/peace transitions are persistent, but player political actions and autonomous decisions are unfinished.
 
 ### Progress and continuation
 

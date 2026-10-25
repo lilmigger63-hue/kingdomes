@@ -47,7 +47,10 @@ public final class CampaignGameTests {
             var edited = new ArrayList<>(previous.kingdoms());
             var first = edited.getFirst();
             edited.set(0, new Kingdom(first.id(), "Kept Across Restart", first.founder(), new Banner(0x102030, 0x405060, 7)));
-            store.save(new CampaignState(previous.worldSeed(), previous.simulationStep(), edited));
+            var political = new CampaignState(previous.worldSeed(), previous.simulationStep(), edited, previous.allegiances(), previous.treaties())
+                    .joinClan(new Clan(100, "Restart Vassals", "Rela", Culture.FOREST), edited.getFirst().id())
+                    .setWar(edited.get(0).id(), edited.get(1).id(), true);
+            store.save(political);
         } catch (IOException error) {
             throw new IllegalStateException("Cannot restore integration campaign fixture", error);
         }
@@ -61,6 +64,8 @@ public final class CampaignGameTests {
             helper.assertTrue(result == 1, "Campaign status must be registered and loaded");
             int count = server.getCommands().getDispatcher().execute("kingdoms list", server.createCommandSourceStack());
             helper.assertTrue(count >= 11 && count <= 20, "World must contain 11–20 NPC-founded kingdoms");
+            helper.assertTrue(server.getCommands().getDispatcher().execute("kingdoms politics", server.createCommandSourceStack()) == 1,
+                    "Politics inspection must be available");
         } catch (com.mojang.brigadier.exceptions.CommandSyntaxException error) {
             throw helper.assertionException("Status command failed: " + error.getMessage());
         }
@@ -78,6 +83,10 @@ public final class CampaignGameTests {
                 if (fixture != null) {
                     var previous = new CampaignStore(Path.of(fixture)).loadOrCreate(Long.MIN_VALUE);
                     helper.assertTrue(saved.simulationStep() > previous.simulationStep(), "Restart must advance the persisted clock");
+                    helper.assertTrue(saved.allegiances().stream().anyMatch(a -> a.clan().id() == 100
+                            && a.clan().name().equals("Restart Vassals") && a.kingdomId() == saved.kingdoms().getFirst().id()), "Vassal allegiance must survive restart");
+                    helper.assertTrue(saved.atWar(saved.kingdoms().get(1).id(), saved.kingdoms().get(0).id()), "War treaty must survive restart symmetrically");
+                    helper.assertTrue(saved.treaties().getFirst().changedAt() == previous.simulationStep(), "Restart must preserve treaty time");
                     var first = saved.kingdoms().getFirst();
                     helper.assertTrue(first.name().equals("Kept Across Restart"), "Restart must preserve custom kingdom name");
                     helper.assertTrue(first.banner().equals(new Banner(0x102030, 0x405060, 7)), "Restart must preserve custom banner");

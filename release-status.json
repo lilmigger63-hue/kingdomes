@@ -10,7 +10,7 @@
   },
   "local_artifact": {
     "path": "build/libs/kingdomsofminecraft-0.1.0-alpha.jar",
-    "sha256": "5048182e6b6a39f60e292f018c7bcde9c31da88616aff6657c897d8d74dd68f6"
+    "sha256": "d39a8f29ab26512a63baa2b59c57b61d6c8d9c7f2aeac553ebe2ec3cbb15cd51"
   },
   "publication_blockers": [
     "Full world reload and Windows singleplayer acceptance unrun",

@@ -87,6 +87,23 @@ public final class KingdomsOfMinecraft {
                                 + " (" + clan.culture().tradition() + ", " + clan.culture().race() + ")"), false);
                     }
                     return state.kingdoms().size();
+                }))
+                .then(Commands.literal("politics").executes(context -> {
+                    if (state == null) {
+                        context.getSource().sendFailure(Component.literal("Campaign is not loaded"));
+                        return 0;
+                    }
+                    context.getSource().sendSuccess(() -> Component.literal(
+                            "Clans: " + state.allegiances().size() + "; recorded treaties: " + state.treaties().size()), false);
+                    for (var allegiance : state.allegiances()) {
+                        String kingdom = state.kingdoms().stream().filter(k -> k.id() == allegiance.kingdomId()).findFirst().orElseThrow().name();
+                        context.getSource().sendSuccess(() -> Component.literal(allegiance.clan().name() + " serves " + kingdom), false);
+                    }
+                    for (var treaty : state.treaties()) {
+                        context.getSource().sendSuccess(() -> Component.literal("Kingdoms " + treaty.first() + " / " + treaty.second()
+                                + ": " + (treaty.war() ? "war" : "peace") + " since step " + treaty.changedAt()), false);
+                    }
+                    return 1;
                 })));
     }
 }

@@ -39,8 +39,8 @@
           "verified": true
         },
         {
-          "id": "clan_vassal_relationships",
-          "verified": false
+          "id": "clan_allegiance_transitions_and_persistence",
+          "verified": true
         },
         {
           "id": "capitals_settlements_territorial_claims",

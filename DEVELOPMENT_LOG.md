@@ -22,3 +22,9 @@ Confirmed source push dc081212c15ee69e56916afa3018970f9b237390 and draft PR #1. 
 Implemented seed-based clan founding of 11–20 realms, immutable identity constraints, cultures/rulers/banner definitions, schema 2 storage with explicit schema 1 migration and /kingdoms list. Verified 1,450 Java checks, three release-gate tests, full build and two selected Minecraft sessions with custom record preservation. Reviewed independently; strengthened restart test to expose accidental regeneration.
 
 Ruling: continue independent kingdom implementation while manual foundation release checks remain pending; no release milestone is marked complete. Kingdoms stage split into six transparent acceptance groups; only founding records/persistence count as verified (2 percentage points, total 6%). Generated heraldry and rulers are definitions, not rendered banners or physical NPC entities. Next: persistent diplomacy and clan relationships.
+
+## 2026-10-25 — Political state slice
+
+Implemented persistent clan membership/transfer and ruler protection, canonical war/peace transitions, schema 3 migrations and read-only politics command. Verified 1,483 Java checks, three release-gate tests, full build and real Minecraft political-state restart. Review found no important defect.
+
+Ruling: implement explicit treaty transitions before autonomous decisions; real army/territory/supply conditions are absent and must not be fabricated. Only clan allegiance transitions/persistence now count as another Kingdoms acceptance group (8% total); autonomous diplomacy remains unverified. Full release gates remain pending.
