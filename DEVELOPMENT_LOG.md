@@ -28,3 +28,9 @@ Ruling: continue independent kingdom implementation while manual foundation rele
 Implemented persistent clan membership/transfer and ruler protection, canonical war/peace transitions, schema 3 migrations and read-only politics command. Verified 1,483 Java checks, three release-gate tests, full build and real Minecraft political-state restart. Review found no important defect.
 
 Ruling: implement explicit treaty transitions before autonomous decisions; real army/territory/supply conditions are absent and must not be fabricated. Only clan allegiance transitions/persistence now count as another Kingdoms acceptance group (8% total); autonomous diplomacy remains unverified. Full release gates remain pending.
+
+## 2026-10-25 — Settlement ownership slice
+
+Added dimension-aware regions, exclusive settlement ownership, capitals, wartime transfer core transition, schema 4 migration and permission-checked operator setup/public inspection. Verified 1,510 Java checks, three release checks, full build and real Minecraft command/restart behavior. Reviewer found no important defect.
+
+Ruling: settlement registration claims only explicit strategic metadata, with no automatic claims on existing land and no block protection or building generation. Claims derive from site ownership to avoid duplicated owner state. Verified settlement registry/ownership/capitals adds one Kingdoms group (10% total); physical settlements and autonomous diplomacy remain incomplete. Next prioritize playable recruitment/army slice to supply real strategy inputs.

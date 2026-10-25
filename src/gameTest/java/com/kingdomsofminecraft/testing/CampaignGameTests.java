@@ -47,7 +47,10 @@ public final class CampaignGameTests {
             var edited = new ArrayList<>(previous.kingdoms());
             var first = edited.getFirst();
             edited.set(0, new Kingdom(first.id(), "Kept Across Restart", first.founder(), new Banner(0x102030, 0x405060, 7)));
-            var political = new CampaignState(previous.worldSeed(), previous.simulationStep(), edited, previous.allegiances(), previous.treaties())
+            var sites = new ArrayList<>(previous.settlements());
+            var originalSite = sites.getFirst();
+            sites.set(0, new Settlement(originalSite.id(), "Kept Settlement", originalSite.kingdomId(), originalSite.region(), true));
+            var political = new CampaignState(previous.worldSeed(), previous.simulationStep(), edited, previous.allegiances(), previous.treaties(), sites)
                     .joinClan(new Clan(100, "Restart Vassals", "Rela", Culture.FOREST), edited.getFirst().id())
                     .setWar(edited.get(0).id(), edited.get(1).id(), true);
             store.save(political);
@@ -59,6 +62,26 @@ public final class CampaignGameTests {
     private static void campaignLifecycle(GameTestHelper helper) {
         var server = helper.getLevel().getServer();
         try {
+            var source = server.createCommandSourceStack().withPosition(new net.minecraft.world.phys.Vec3(5000000,80,5000000));
+            var unprivileged = source.withPermission(net.minecraft.server.permissions.PermissionSet.NO_PERMISSIONS);
+            var dispatcher = server.getCommands().getDispatcher();
+            helper.assertTrue(!server.overworld().hasChunk(312500,312500), "Remote test region starts unloaded");
+            try {
+                dispatcher.execute("kingdoms settlement 0 Unauthorized", unprivileged);
+                throw helper.assertionException("Non-operator settlement registration was allowed");
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
+            try {
+                dispatcher.execute("kingdoms capital 0", unprivileged);
+                throw helper.assertionException("Non-operator capital designation was allowed");
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
+            if (System.getProperty("kingdomsofminecraft.reloadFixture") == null) {
+                helper.assertTrue(dispatcher.execute("kingdoms settlement 0 \"Restart Site\"", source)==1, "Operator can register a site");
+                helper.assertTrue(dispatcher.execute("kingdoms capital 0", source)==1, "Operator can designate a capital");
+                helper.assertTrue(dispatcher.execute("kingdoms settlement 1 Duplicate", source)==0, "Conflicting registration must be rejected");
+            }
+            helper.assertTrue(dispatcher.execute("kingdoms territory", unprivileged)==1, "Public territory inspection");
+            helper.assertTrue(dispatcher.execute("kingdoms settlements", unprivileged)==1, "Public settlement inspection");
+            helper.assertTrue(!server.overworld().hasChunk(312500,312500), "Registration and inspection must not load remote chunks");
             int result = server.getCommands().getDispatcher().execute(
                     "kingdoms status", server.createCommandSourceStack());
             helper.assertTrue(result == 1, "Campaign status must be registered and loaded");
@@ -79,8 +102,13 @@ public final class CampaignGameTests {
                 helper.assertTrue(saved.worldSeed() == server.overworld().getSeed(), "Campaign must use owning world seed");
                 helper.assertTrue(saved.simulationStep() >= 30, "Campaign must advance and autosave");
                 helper.assertTrue(saved.kingdoms().size() >= 11 && saved.kingdoms().size() <= 20, "Kingdom records must persist");
+                helper.assertTrue(saved.settlements().size()==1, "Exactly one authorized registration must persist");
+                var site = saved.settlements().getFirst();
+                helper.assertTrue(site.kingdomId()==0 && site.capital()
+                        && site.region().equals(new Region("minecraft:overworld",9765,9765)), "Persisted site/capital/region ownership");
                 String fixture = System.getProperty("kingdomsofminecraft.reloadFixture");
                 if (fixture != null) {
+                    helper.assertTrue(site.name().equals("Kept Settlement"), "Custom settlement must survive startup");
                     var previous = new CampaignStore(Path.of(fixture)).loadOrCreate(Long.MIN_VALUE);
                     helper.assertTrue(saved.simulationStep() > previous.simulationStep(), "Restart must advance the persisted clock");
                     helper.assertTrue(saved.allegiances().stream().anyMatch(a -> a.clan().id() == 100

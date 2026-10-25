@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Strategic settlement/capital registry, dimension-aware regional ownership and wartime transfer core operation.
+- Operator registration/capital commands and public settlement/territory inspection, without block writes or chunk loading.
+- Schema 4 migration preserving old political state and creating no automatic claims.
 - Separate clan allegiances, protected ruling clans and validated vassal transfers.
 - Symmetric war/peace treaty state and `/kingdoms politics` inspection.
 - Schema 3 with explicit schema 1/2 migration and bounded political state.

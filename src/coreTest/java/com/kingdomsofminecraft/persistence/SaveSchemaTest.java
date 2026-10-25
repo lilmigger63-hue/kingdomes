@@ -23,6 +23,8 @@ public final class SaveSchemaTest {
             reject(file, politics(0,-1,0), "negative treaty count");
             reject(file, politics(0,191,0), "excess treaty count");
             reject(file, politics(0,1,2), "noncanonical war flag");
+            reject(file, settlementCount(-1), "negative settlement count");
+            reject(file, settlementCount(129), "excess settlement count");
             byte[] schema2=fixture(2,1,"FOREST",7,9,"Custom");
             Files.write(file,schema2);
             var migrated=new CampaignStore(file).loadOrCreate(999);
@@ -32,9 +34,15 @@ public final class SaveSchemaTest {
             checks++;
             if(!Arrays.equals(schema2,Files.readAllBytes(file)))throw new AssertionError("Migration modified schema 2 input");
             checks++;
-            reject(file, new byte[65537], "oversized input");
+            reject(file, new byte[262145], "oversized input");
             System.out.println("PASS: " + checks + " malformed save checks");
         } finally { Files.delete(file); }
+    }
+    private static byte[] settlementCount(int count) throws IOException {
+        var bytes=new ByteArrayOutputStream();var out=new DataOutputStream(bytes);
+        out.writeInt(0x4b4f4d43);out.writeInt(4);out.writeLong(5);out.writeLong(200);
+        out.writeInt(0);out.writeInt(0);out.writeInt(0);out.writeInt(count);
+        CRC32 crc=new CRC32();crc.update(bytes.toByteArray());out.writeLong(crc.getValue());return bytes.toByteArray();
     }
     private static byte[] politics(int clans,int treaties,int flag) throws IOException {
         var bytes=new ByteArrayOutputStream(); var out=new DataOutputStream(bytes);

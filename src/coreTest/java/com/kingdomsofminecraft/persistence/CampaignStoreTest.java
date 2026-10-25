@@ -31,7 +31,7 @@ public final class CampaignStoreTest {
             check(store.loadOrCreate(999).equals(new CampaignState(-18,456)), "schema 1 migration preserves seed, time and seeds kingdoms");
             check(Arrays.equals(Files.readAllBytes(save), legacy), "migration must not rewrite during load");
             store.save(store.loadOrCreate(999));
-            check(ByteBuffer.wrap(Files.readAllBytes(save)).getInt(4) == 3, "next save upgrades schema");
+            check(ByteBuffer.wrap(Files.readAllBytes(save)).getInt(4) == 4, "next save upgrades schema");
             Files.write(save, valid);
             Files.write(save, Arrays.copyOf(valid, 6));
             rejects(() -> store.loadOrCreate(42), IOException.class, "truncated save");
@@ -70,6 +70,7 @@ public final class CampaignStoreTest {
             KingdomFoundingTest.main(args);
             SaveSchemaTest.main(args);
             PoliticsTest.main(args);
+            TerritoryTest.main(args);
         } finally {
             try (var paths = Files.walk(dir)) {
                 for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(path);

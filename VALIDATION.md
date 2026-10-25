@@ -50,3 +50,12 @@ On Windows with Java 25 and the target NeoForge/Minecraft versions, start the cl
 - Hand-built schema 2 fixture preserves custom kingdom/clan IDs and names, seed/time and original file bytes during migration. Schema 1 migration remains covered. Invalid political counts/flags are rejected without rewriting.
 - Full NeoForge build passed. Two selected Minecraft GameTest sessions verify /kingdoms politics and preserve a custom vassal, war treaty and transition time through production startup and autosave; clock 0 → 98 → 98 → 198. GameTest's reset universe still precludes claiming full vanilla world/client reload.
 - Independent read-only review found no important actionable defect. No autonomous diplomacy, player political actions or release completion claimed. Source GitHub CI is checked after push and is separate from local results.
+
+## Settlement ownership slice — 2026-10-25
+
+- Observed test-first ownership roundtrip fail against schema 3, then pass with schema 4. Full Java suite: 21 persistence, 1,411 founding, 34 malformed-save, 23 political/capacity and 21 territory checks (1,510 total). Three Python release-gate tests pass; full NeoForge build passed.
+- Golden schema 3 save generated before the codec change verifies seed 7, step 100, 13 kingdoms, custom clan 100 and war 0/1 are preserved, with no newly created settlements and no write during load. Schema 1/2 migration coverage remains active.
+- Tests cover region floor division, dimension isolation, duplicate ownership/name rejection, one capital per realm, wartime transfer and preservation across ticks, politics and founding. Maximal valid state (20 kingdoms, 64 clans, 190 treaties, 128 sites) with long multibyte names/dimension strings roundtrips within 256 KiB.
+- Two selected Minecraft sessions passed, clock 0 → 32 → 32 → 83. Commands reject non-operator registration and capital changes, accept operator registration/designation, reject a conflicting site, allow public inspection, and preserve custom settlement name/capital/ownership through restart. Commands left a remote region's chunks unloaded. Production adds no block-writing operations.
+- Read-only independent review found no important concrete defect. Full vanilla world/client reload and Windows singleplayer remain unrun, and release flags remain false. Physical buildings, world generation, protection and live siege/conquest are not validated or claimed.
+- GitHub CI for this source is checked separately after push; local results above are independently confirmed.

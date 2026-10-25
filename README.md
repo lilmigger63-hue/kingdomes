@@ -15,3 +15,7 @@ For manual play, use `./gradlew runClient`, create a test world, and run `/kingd
 ### Progress and continuation
 
 Run `python3 scripts/progress.py` for weighted verified progress. See [validation](VALIDATION.md), [current task](CURRENT_TASK.md), [roadmap](ROADMAP.md), [release plan](RELEASE_PLAN.md), and [resume instructions](AUTO_RESUME.md). No release is available until milestone acceptance is complete.
+
+### Strategic settlement setup
+
+With operator permission, run `/kingdoms list` for kingdom IDs, stand at the intended site and use `/kingdoms settlement 0 "Site Name"`. This registers one strategic 512-block region in the current dimension; it does not build anything or protect blocks. Use `/kingdoms settlements` for site IDs and `/kingdoms capital 0` to designate a capital. `/kingdoms territory` inspects the region at your position. Conflicting sites are rejected. Settlement buildings, world generation, recruitment and live conquest remain unfinished.

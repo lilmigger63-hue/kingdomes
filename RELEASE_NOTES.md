@@ -4,6 +4,8 @@ Foundation campaign clock and schema 1 storage with corruption detection, plus `
 
 Requires Minecraft 26.1.2, NeoForge 26.1.2.122 and Java 25. After verified release, put the mod JAR into the instance's `mods` folder. Do not install development sources or the MDK as a mod. Back up worlds before using any alpha.
 
-Save format: schema 3, stored in `<world>/kingdomsofminecraft/campaign.dat`. Schema 1 saves retain their seed/clock and receive initial kingdoms; schema 2 retains actual kingdoms and assigns founding clan allegiances. Both initialize peaceful diplomacy and upgrade to schema 3 on their next save. Back up before upgrading: old builds cannot read schema 3. Future incompatible formats must be migrated explicitly; unknown formats stop loading instead of discarding data.
+Save format: schema 4, stored in `<world>/kingdomsofminecraft/campaign.dat`. Schema 1 saves retain their seed/clock and receive initial kingdoms; schema 2 retains actual kingdoms and assigns founding clan allegiances. Schema 3 preserves its full political state. All older formats initialize an empty settlement list and upgrade to schema 4 on their next save. Back up before upgrading: old builds cannot read schema 4. Future incompatible formats must be migrated explicitly; unknown formats stop loading instead of discarding data.
 
 Windows singleplayer validation is required before publication. See VALIDATION.md for actual executed checks.
+
+Strategic settlement sites, capitals and region ownership are implemented as metadata with operator setup commands and public inspection. No settlement buildings, block protection, generation or live conquest gameplay is included.

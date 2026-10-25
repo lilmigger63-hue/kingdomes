@@ -14,8 +14,8 @@ import java.util.zip.CRC32;
  */
 public final class CampaignStore {
     private static final int MAGIC = 0x4b4f4d43;
-    private static final int SCHEMA = 3;
-    private static final int MAX_FILE_BYTES = 65536;
+    private static final int SCHEMA = 4;
+    private static final int MAX_FILE_BYTES = 262144;
     private final Path file;
 
     public CampaignStore(Path file) {
@@ -70,8 +70,22 @@ public final class CampaignStore {
                 if (war > 1) throw new IOException("Invalid war flag");
                 treaties.add(new Treaty(first, second, war==1, input.readLong()));
             }
+            if (schema == 3) {
+                if(input.available() != 0) throw new IOException("Trailing schema 3 data");
+                return new CampaignState(worldSeed, step, kingdoms, allegiances, treaties);
+            }
+            int siteCount=input.readInt();
+            if (siteCount < 0 || siteCount > 128) throw new IOException("Invalid settlement count");
+            var sites=new ArrayList<Settlement>(siteCount);
+            for (int i=0;i<siteCount;i++) {
+                int id=input.readInt(); String name=input.readUTF(); int owner=input.readInt();
+                var region=new Region(input.readUTF(), input.readInt(), input.readInt());
+                int capital=input.readUnsignedByte();
+                if (capital > 1) throw new IOException("Invalid capital flag");
+                sites.add(new Settlement(id,name,owner,region,capital==1));
+            }
             if(input.available() != 0) throw new IOException("Trailing campaign data");
-            return new CampaignState(worldSeed, step, kingdoms, allegiances, treaties);
+            return new CampaignState(worldSeed, step, kingdoms, allegiances, treaties, sites);
         } catch (IllegalArgumentException | NullPointerException error) {
             throw new IOException("Invalid campaign data: " + file, error);
         }
@@ -99,6 +113,12 @@ public final class CampaignStore {
             output.writeInt(state.treaties().size());
             for (var treaty : state.treaties()) {
                 output.writeInt(treaty.first()); output.writeInt(treaty.second()); output.writeBoolean(treaty.war()); output.writeLong(treaty.changedAt());
+            }
+            output.writeInt(state.settlements().size());
+            for (var site : state.settlements()) {
+                output.writeInt(site.id()); output.writeUTF(site.name()); output.writeInt(site.kingdomId());
+                output.writeUTF(site.region().dimension()); output.writeInt(site.region().x()); output.writeInt(site.region().z());
+                output.writeBoolean(site.capital());
             }
             CRC32 checksum=new CRC32(); checksum.update(bytes.toByteArray()); output.writeLong(checksum.getValue());
         }

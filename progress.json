@@ -43,8 +43,8 @@
           "verified": true
         },
         {
-          "id": "capitals_settlements_territorial_claims",
-          "verified": false
+          "id": "settlement_registry_region_ownership_and_capitals",
+          "verified": true
         },
         {
           "id": "strategic_war_peace",

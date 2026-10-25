@@ -48,6 +48,13 @@ public final class PoliticsTest {
             var capacity=new CampaignState(9,100,realms,members,treaties);
             store.save(capacity);
             check(store.loadOrCreate(999).equals(capacity) && Files.size(file)<=65536,"full political capacity with multibyte names fits and roundtrips");
+            var sites=new java.util.ArrayList<Settlement>();
+            for(int i=0;i<128;i++) sites.add(new Settlement(i,longName+i,i%20,new Region("a:"+"b".repeat(126),i,0),i<20));
+            var complete=new CampaignState(9,100,realms,members,treaties,sites);
+            store.save(complete);
+            check(store.loadOrCreate(999).equals(complete) && Files.size(file)<=262144,"full campaign capacity with long names/dimensions roundtrips");
+            sites.add(new Settlement(128,"Overflow",0,new Region("minecraft:overworld",0,0),false));
+            reject(()->new CampaignState(9,100,realms,members,treaties,sites),"settlement cap enforced");
             members.add(new ClanAllegiance(new Clan(100,"Too many","Ruler",Culture.WESTERN),0));
             reject(()->new CampaignState(9,100,realms,members,treaties),"clan cap enforced");
         } finally {Files.delete(file);}

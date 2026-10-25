@@ -1,6 +1,10 @@
 package com.kingdomsofminecraft;
 
 import com.kingdomsofminecraft.campaign.CampaignState;
+import com.kingdomsofminecraft.campaign.Region;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.minecraft.core.BlockPos;
 import com.kingdomsofminecraft.persistence.CampaignStore;
 import com.mojang.logging.LogUtils;
 import java.io.IOException;
@@ -82,7 +86,7 @@ public final class KingdomsOfMinecraft {
                     }
                     for (var kingdom : state.kingdoms()) {
                         var clan = kingdom.founder();
-                        context.getSource().sendSuccess(() -> Component.literal(kingdom.name()
+                        context.getSource().sendSuccess(() -> Component.literal("[" + kingdom.id() + "] " + kingdom.name()
                                 + " — " + clan.name() + ", ruled by " + clan.ruler()
                                 + " (" + clan.culture().tradition() + ", " + clan.culture().race() + ")"), false);
                     }
@@ -104,6 +108,56 @@ public final class KingdomsOfMinecraft {
                                 + ": " + (treaty.war() ? "war" : "peace") + " since step " + treaty.changedAt()), false);
                     }
                     return 1;
-                })));
+                }))
+                .then(Commands.literal("territory").executes(context -> {
+                    if (state == null) return 0;
+                    var region = currentRegion(context.getSource());
+                    var owner = state.ownerOf(region);
+                    context.getSource().sendSuccess(() -> Component.literal(region.dimension() + " region " + region.x() + ", " + region.z()
+                            + (owner.isPresent() ? ": kingdom " + owner.getAsInt() : ": unclaimed")), false);
+                    return 1;
+                }))
+                .then(Commands.literal("settlements").executes(context -> {
+                    if (state == null) return 0;
+                    context.getSource().sendSuccess(() -> Component.literal("Registered sites: " + state.settlements().size()), false);
+                    for (var site : state.settlements()) {
+                        context.getSource().sendSuccess(() -> Component.literal("[" + site.id() + "] " + site.name() + ": kingdom " + site.kingdomId()
+                                + (site.capital() ? " (capital)" : "") + ", " + site.region().dimension() + " region " + site.region().x() + ", " + site.region().z()), false);
+                    }
+                    return 1;
+                }))
+                .then(Commands.literal("settlement").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .then(Commands.argument("kingdom", IntegerArgumentType.integer(0))
+                                .then(Commands.argument("name", StringArgumentType.string()).executes(context -> {
+                                    if (state == null) return 0;
+                                    try {
+                                        state = state.registerSettlement(StringArgumentType.getString(context,"name"),
+                                                IntegerArgumentType.getInteger(context,"kingdom"), currentRegion(context.getSource()));
+                                        save();
+                                        context.getSource().sendSuccess(() -> Component.literal("Registered strategic settlement site. No buildings or blocks were changed."), true);
+                                        return 1;
+                                    } catch (IllegalArgumentException error) {
+                                        context.getSource().sendFailure(Component.literal(error.getMessage()));
+                                        return 0;
+                                    }
+                                }))))
+                .then(Commands.literal("capital").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .then(Commands.argument("settlement", IntegerArgumentType.integer(0)).executes(context -> {
+                            if (state == null) return 0;
+                            try {
+                                state = state.designateCapital(IntegerArgumentType.getInteger(context,"settlement"));
+                                save();
+                                context.getSource().sendSuccess(() -> Component.literal("Capital designation updated"), true);
+                                return 1;
+                            } catch (IllegalArgumentException error) {
+                                context.getSource().sendFailure(Component.literal(error.getMessage()));
+                                return 0;
+                            }
+                        }))));
+    }
+
+    private static Region currentRegion(net.minecraft.commands.CommandSourceStack source) {
+        var position = BlockPos.containing(source.getPosition());
+        return Region.atBlock(source.getLevel().dimension().identifier().toString(), position.getX(), position.getZ());
     }
 }
