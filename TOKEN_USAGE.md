@@ -11,3 +11,5 @@ Remove planned custom construction, blueprint, civilian job/schedule and colony-
 ## V5.3 adjustment
 
 Custom terrain noise/continent/river/biome-replacement engine work is removed. Tectonic provides terrain; MineColonies provides construction. Remaining work is bounded geographic observations/caching, placement integration, strategic distribution/routes/movement and compatibility/save/performance validation. Numeric savings and actual consumption remain unavailable; do not invent revised measured totals.
+
+Blueprint preflight reuses upstream Blueprint and StructurePacks IO plus colony permissions/hut rules. Only bounded read-only checks and command coordination are custom. No blueprint parser, construction engine or upstream asset copies were added. Authoritative token counters remain unavailable.

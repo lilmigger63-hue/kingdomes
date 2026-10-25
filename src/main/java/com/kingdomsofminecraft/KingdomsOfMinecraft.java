@@ -3,6 +3,7 @@ package com.kingdomsofminecraft;
 import com.kingdomsofminecraft.campaign.CampaignState;
 import com.kingdomsofminecraft.integration.MineColoniesAdapter;
 import com.kingdomsofminecraft.integration.LoadedTerrainSampler;
+import com.kingdomsofminecraft.integration.BlueprintPreflightCommands;
 import com.kingdomsofminecraft.geography.SiteRole;
 import java.util.Locale;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -28,6 +29,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 public final class KingdomsOfMinecraft {
     public static final String MOD_ID = "kingdomsofminecraft";
     private final LoadedTerrainSampler terrain=new LoadedTerrainSampler();
+    private final BlueprintPreflightCommands blueprintPlans=new BlueprintPreflightCommands();
     private CampaignStore store;
     private CampaignState state;
 
@@ -40,6 +42,7 @@ public final class KingdomsOfMinecraft {
 
     private void starting(ServerStartingEvent event) {
         terrain.clear();
+        blueprintPlans.clear();
         store = new CampaignStore(event.getServer().getWorldPath(LevelResource.ROOT)
                 .resolve(MOD_ID).resolve("campaign.dat"));
         try {
@@ -59,6 +62,7 @@ public final class KingdomsOfMinecraft {
     }
 
     private void stopping(ServerStoppingEvent event) {
+        blueprintPlans.clear();
         if (state == null) return;
         try { save(); } finally { state = null; store = null; terrain.clear(); }
     }
@@ -75,6 +79,7 @@ public final class KingdomsOfMinecraft {
 
     private void commands(RegisterCommandsEvent event) {
         event.getDispatcher().register(Commands.literal("kingdoms")
+                .then(blueprintPlans.command())
                 .then(Commands.literal("status").executes(context -> {
                     if (state == null) {
                         context.getSource().sendFailure(Component.literal("Campaign is not loaded"));

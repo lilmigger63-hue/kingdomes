@@ -50,3 +50,9 @@ Pinned official compatible Tectonic/Lithostitched artifacts with SHA-512 checks,
 Review lava hazard reproduced and fixed; 1,548 Java checks, eight release tests, full cloud build/setup and two Minecraft sessions with two selected tests each passed. Remaining acceptance, source CI and exact source revision are tracked through GitHub and CURRENT_TASK.md.
 
 Ruling: do not credit advisory screening as actual automatic placement or synthetic profiles as real mountain/valley/river/coastal construction. Rebaseline stage 6 to ten V5.3 groups while retaining all nine MineColonies release checks. Progress 10.6% under the broader scope; existing implementation is preserved and no upstream terrain/building feature credit is added.
+
+## 2026-10-25 — Blueprint expansion preflight
+
+Resumed 86c3841 without repeating dependency research or completed terrain work. Added bounded original-orientation BlueprintFootprint geometry, a fresh full-loaded-volume BlueprintSiteInspector using real MineColonies permissions and hut rules, and /kingdoms plan with upstream asynchronous blueprint IO plus server-thread-only world checks. The entire footprint is guarded before upstream positional calls; no construction, permissions, inventories or blocks are changed.
+
+Test-first footprint/reference compilation failed before implementation; 23 new pure checks then passed. Real colony tests exercise owner acceptance, unauthorized rejection, cut/fill and hidden fluid/chest/bedrock hazards, inventory preservation, actual upstream blueprint dimensions/loading, partial unloaded boundaries and async result/cooldown/lifecycle behavior. GameTest scaffolding/relocation made an assumed natural-flat fixture nondeterministic; it now establishes and restores its own small dry platform. This is fixture evidence, not real terrain-category construction. Independent read-only review found no defects; no acceptance group or release is marked complete.

@@ -91,6 +91,7 @@ public final class CampaignGameTests {
                     player,"Integration Colony",basePack.getName());
             helper.assertTrue(colony != null, "Public MineColonies API must create a real colony");
             var owner=colony.getPermissions().getOwner();
+            BlueprintGameTests.verify(helper,colony,player);
             var snapshot=MineColoniesAdapter.find(helper.getLevel(),colony.getID()).orElseThrow();
             helper.assertTrue(snapshot.name().equals("Integration Colony") && snapshot.playerOwner().equals(player.getUUID()) && snapshot.playerOwnerName().equals("IntegrationOwner"), "Read authoritative colony name and player owner");
             helper.assertTrue(snapshot.population()==0 && snapshot.buildings()==0 && snapshot.townHallLevel()==0, "Read initial population/buildings without synthesizing development");
