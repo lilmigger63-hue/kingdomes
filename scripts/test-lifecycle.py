@@ -4,6 +4,7 @@
 GameTestMain intentionally deletes its universe before each run. This verifies
 campaign shutdown/startup persistence, not a vanilla world or client reload.
 """
+import json
 import re
 import shutil
 import subprocess
@@ -15,6 +16,11 @@ root = Path(__file__).resolve().parent.parent
 reports = root / 'build/reports'
 reports.mkdir(parents=True, exist_ok=True)
 report = reports / 'gametest.xml'
+settings = root / 'run/port-assets/settings.json'
+settings.parent.mkdir(parents=True, exist_ok=True)
+config = json.loads(settings.read_text()) if settings.exists() else {'mode':'auto'}
+config['serverAutoDownload'] = True
+settings.write_text(json.dumps(config,indent=2)+'\n')
 
 def run(label, fixture=None):
     report.unlink(missing_ok=True)
@@ -28,6 +34,8 @@ def run(label, fixture=None):
     if len(tests) != 1 or any(list(t.iter('failure')) or list(t.iter('error')) or list(t.iter('skipped')) for t in tests):
         raise RuntimeError(f'Expected one passing selected GameTest; inspect {report}')
     text = log.read_text()
+    if 'Missing element ResourceKey[minecraft:loot_table / minecolonies:' in text:
+        raise RuntimeError(f'MineColonies data provisioning is incomplete: {log}')
     loaded = [int(x) for x in re.findall(r'Kingdoms campaign loaded at step (\d+)', text)]
     saved = [int(x) for x in re.findall(r'Kingdoms campaign saved at step (\d+)', text)]
     if len(loaded) != 1 or not saved or saved[-1] <= loaded[0]:

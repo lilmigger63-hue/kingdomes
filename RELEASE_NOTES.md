@@ -1,11 +1,11 @@
 # 0.1.0-alpha candidate — unreleased
 
-Foundation campaign clock and schema 1 storage with corruption detection, plus `/kingdoms status`. Adds 11–20 seed-based kingdom foundations, stored clan/ruler/culture/banner definitions and `/kingdoms list`. Separate clan allegiances, core war/peace transitions and /kingdoms politics are implemented. Physical NPCs, autonomous diplomacy, armies, recruitment, combat, world generation and custom visual assets are not implemented yet.
+Minecraft 26.1.2, NeoForge 26.1.2.122, Java 25. Requires separately installed community MineColonies port 1.1.1403-port26.1.2-0.7.1 from source commit 9901957777e3dc8cf8119826c619654a48ae486e; build its publishJar using scripts/setup-minecolonies.py. No dependency JAR or restricted assets are bundled. The port provisions upstream assets locally. See docs/MINECOLONIES_COMPATIBILITY.md for exact compatibility evidence and limitations.
 
-Requires Minecraft 26.1.2, NeoForge 26.1.2.122 and Java 25. After verified release, put the mod JAR into the instance's `mods` folder. Do not install development sources or the MDK as a mod. Back up worlds before using any alpha.
+Includes campaign persistence, 11–20 kingdom foundations, clans/cultures/heraldry, political allegiance/treaties, live colony discovery and explicit operator colony-to-kingdom binding. /kingdoms colonies reads MineColonies name, owner, population and building data; colonies bind records only political allegiance. Player permissions and physical state remain MineColonies-owned. Rebinding/conquest is blocked. Standalone site/capital creation is disabled; normal MineColonies tools/Town Halls replace those plans.
 
-Save format: schema 4, stored in `<world>/kingdomsofminecraft/campaign.dat`. Schema 1 saves retain their seed/clock and receive initial kingdoms; schema 2 retains actual kingdoms and assigns founding clan allegiances. Schema 3 preserves its full political state. All older formats initialize an empty settlement list and upgrade to schema 4 on their next save. Back up before upgrading: old builds cannot read schema 4. Future incompatible formats must be migrated explicitly; unknown formats stop loading instead of discarding data.
+Save format: schema 5. Existing schemas 1–4 migrate without rewriting during load; legacy sites remain but no automatic colonies or mappings are invented. Old builds cannot read schema 5. Back up worlds before upgrading.
 
-Windows singleplayer validation is required before publication. See VALIDATION.md for actual executed checks.
+Distribution license: GPL-3.0-only, with LICENSE and retained template/upstream attribution. Dependency code/assets are separate.
 
-Strategic settlement sites, capitals and region ownership are implemented as metadata with operator setup commands and public inspection. No settlement buildings, block protection, generation or live conquest gameplay is included.
+AI governors, construction automation, normal client tool/warehouse/upgrade validation, military recruitment/logistics, full synchronized MineColonies world reload, safe conquest and performance are unfinished. Headless tests do not prove Windows singleplayer/UI readiness. This is not a completed 0.6.0-alpha integration release. No release has been published.

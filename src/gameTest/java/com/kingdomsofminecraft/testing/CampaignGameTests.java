@@ -1,6 +1,9 @@
 package com.kingdomsofminecraft.testing;
 
 import com.kingdomsofminecraft.persistence.CampaignStore;
+import com.kingdomsofminecraft.integration.MineColoniesAdapter;
+import com.minecolonies.api.colony.IColonyManager;
+import com.ldtteam.structurize.storage.StructurePacks;
 import com.kingdomsofminecraft.campaign.*;
 import java.util.ArrayList;
 import java.io.IOException;
@@ -48,9 +51,9 @@ public final class CampaignGameTests {
             var first = edited.getFirst();
             edited.set(0, new Kingdom(first.id(), "Kept Across Restart", first.founder(), new Banner(0x102030, 0x405060, 7)));
             var sites = new ArrayList<>(previous.settlements());
-            var originalSite = sites.getFirst();
-            sites.set(0, new Settlement(originalSite.id(), "Kept Settlement", originalSite.kingdomId(), originalSite.region(), true));
-            var political = new CampaignState(previous.worldSeed(), previous.simulationStep(), edited, previous.allegiances(), previous.treaties(), sites)
+            var bindings=new ArrayList<>(previous.colonies());
+            bindings.set(0,new ColonyBinding(bindings.getFirst().colony(),1));
+            var political = new CampaignState(previous.worldSeed(), previous.simulationStep(), edited, previous.allegiances(), previous.treaties(), sites, bindings)
                     .joinClan(new Clan(100, "Restart Vassals", "Rela", Culture.FOREST), edited.getFirst().id())
                     .setWar(edited.get(0).id(), edited.get(1).id(), true);
             store.save(political);
@@ -74,14 +77,36 @@ public final class CampaignGameTests {
                 dispatcher.execute("kingdoms capital 0", unprivileged);
                 throw helper.assertionException("Non-operator capital designation was allowed");
             } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
-            if (System.getProperty("kingdomsofminecraft.reloadFixture") == null) {
-                helper.assertTrue(dispatcher.execute("kingdoms settlement 0 \"Restart Site\"", source)==1, "Operator can register a site");
-                helper.assertTrue(dispatcher.execute("kingdoms capital 0", source)==1, "Operator can designate a capital");
-                helper.assertTrue(dispatcher.execute("kingdoms settlement 1 Duplicate", source)==0, "Conflicting registration must be rejected");
-            }
-            helper.assertTrue(dispatcher.execute("kingdoms territory", unprivileged)==1, "Public territory inspection");
-            helper.assertTrue(dispatcher.execute("kingdoms settlements", unprivileged)==1, "Public settlement inspection");
-            helper.assertTrue(!server.overworld().hasChunk(312500,312500), "Registration and inspection must not load remote chunks");
+            helper.assertTrue(net.neoforged.fml.ModList.get().isLoaded("minecolonies"), "Real MineColonies mod must load");
+            var packs=StructurePacks.getPackMetas();
+            helper.assertTrue(!packs.isEmpty(), "Real blueprint packs must be provisioned");
+            // NeoForge fake player avoids a vanilla mock login without negotiated mod channels.
+            // This is test ownership only, not an implemented AI governor.
+            var basePack=packs.stream().filter(p -> p.getName().equals("Minecolonies Original")).findFirst()
+                    .orElseThrow(() -> helper.assertionException("Required upstream MineColonies base blueprint pack is missing"));
+            var player=net.neoforged.neoforge.common.util.FakePlayerFactory.get(helper.getLevel(),
+                    new com.mojang.authlib.GameProfile(java.util.UUID.fromString("473ae721-8927-499c-aae5-badfd0540d65"),"IntegrationOwner"));
+            var colony=IColonyManager.getInstance().createColony(helper.getLevel(),helper.absolutePos(new net.minecraft.core.BlockPos(0,0,0)),
+                    player,"Integration Colony",basePack.getName());
+            helper.assertTrue(colony != null, "Public MineColonies API must create a real colony");
+            var owner=colony.getPermissions().getOwner();
+            var snapshot=MineColoniesAdapter.find(helper.getLevel(),colony.getID()).orElseThrow();
+            helper.assertTrue(snapshot.name().equals("Integration Colony") && snapshot.playerOwner().equals(player.getUUID()) && snapshot.playerOwnerName().equals("IntegrationOwner"), "Read authoritative colony name and player owner");
+            helper.assertTrue(snapshot.population()==0 && snapshot.buildings()==0 && snapshot.townHallLevel()==0, "Read initial population/buildings without synthesizing development");
+            String bind="kingdoms colonies bind " + colony.getID() + " ";
+            try {
+                dispatcher.execute(bind+"0",unprivileged);
+                throw helper.assertionException("Non-operator colony binding allowed");
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException expected) { }
+            int expectedKingdom=System.getProperty("kingdomsofminecraft.reloadFixture")==null ? 0 : 1;
+            helper.assertTrue(dispatcher.execute(bind+expectedKingdom,source)==1, "Operator binds a real colony or repeats the restored mapping");
+            helper.assertTrue(dispatcher.execute(bind+(expectedKingdom==0?1:0),source)==0, "Rebinding cannot bypass conquest");
+            helper.assertTrue(colony.getPermissions().getOwner().equals(owner), "Political mapping must not alter MineColonies owner permissions");
+            helper.assertTrue(dispatcher.execute("kingdoms settlement 0 Legacy",source)==0, "Standalone settlement registration is disabled");
+            helper.assertTrue(dispatcher.execute("kingdoms capital 0",source)==0, "Standalone capital administration is disabled");
+            helper.assertTrue(dispatcher.execute("kingdoms territory",unprivileged)==1, "Public colony territory inspection");
+            helper.assertTrue(dispatcher.execute("kingdoms settlements",unprivileged)==1, "Public colony discovery");
+            helper.assertTrue(!server.overworld().hasChunk(312500,312500), "Discovery and mapping must not load the remote query region");
             int result = server.getCommands().getDispatcher().execute(
                     "kingdoms status", server.createCommandSourceStack());
             helper.assertTrue(result == 1, "Campaign status must be registered and loaded");
@@ -102,13 +127,11 @@ public final class CampaignGameTests {
                 helper.assertTrue(saved.worldSeed() == server.overworld().getSeed(), "Campaign must use owning world seed");
                 helper.assertTrue(saved.simulationStep() >= 30, "Campaign must advance and autosave");
                 helper.assertTrue(saved.kingdoms().size() >= 11 && saved.kingdoms().size() <= 20, "Kingdom records must persist");
-                helper.assertTrue(saved.settlements().size()==1, "Exactly one authorized registration must persist");
-                var site = saved.settlements().getFirst();
-                helper.assertTrue(site.kingdomId()==0 && site.capital()
-                        && site.region().equals(new Region("minecraft:overworld",9765,9765)), "Persisted site/capital/region ownership");
+                helper.assertTrue(saved.colonies().size()==1, "One physical colony has one persisted political binding");
+                helper.assertTrue(saved.colonies().getFirst().colony().dimension().equals("minecraft:overworld"), "Binding dimension persists");
                 String fixture = System.getProperty("kingdomsofminecraft.reloadFixture");
                 if (fixture != null) {
-                    helper.assertTrue(site.name().equals("Kept Settlement"), "Custom settlement must survive startup");
+                    helper.assertTrue(saved.colonies().getFirst().kingdomId()==1, "Custom colony political mapping survives startup");
                     var previous = new CampaignStore(Path.of(fixture)).loadOrCreate(Long.MIN_VALUE);
                     helper.assertTrue(saved.simulationStep() > previous.simulationStep(), "Restart must advance the persisted clock");
                     helper.assertTrue(saved.allegiances().stream().anyMatch(a -> a.clan().id() == 100

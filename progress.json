@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "Kingdoms (foundation release acceptance pending)",
+  "current_stage": "MineColonies integration (initial adapter; other milestones unfinished)",
   "build_status": "PASS",
   "latest_release": null,
   "stages": [
@@ -43,8 +43,8 @@
           "verified": true
         },
         {
-          "id": "settlement_registry_region_ownership_and_capitals",
-          "verified": true
+          "id": "colony_backed_capitals_and_territorial_claims",
+          "verified": false
         },
         {
           "id": "strategic_war_peace",
@@ -91,11 +91,43 @@
       ]
     },
     {
-      "name": "Settlements and world generation",
+      "name": "MineColonies Integration and Kingdom Settlement Management",
       "weight": 13,
       "deliverables": [
         {
-          "id": "settlements_territory_construction",
+          "id": "compatible_dependency",
+          "verified": true
+        },
+        {
+          "id": "colony_discovery_state",
+          "verified": true
+        },
+        {
+          "id": "settlement_kingdom_mapping",
+          "verified": true
+        },
+        {
+          "id": "building_reuse",
+          "verified": false
+        },
+        {
+          "id": "ai_governor_construction",
+          "verified": false
+        },
+        {
+          "id": "recruitment_logistics",
+          "verified": false
+        },
+        {
+          "id": "save_load_synchronization",
+          "verified": false
+        },
+        {
+          "id": "conquest_compatibility",
+          "verified": false
+        },
+        {
+          "id": "performance_validation",
           "verified": false
         }
       ]

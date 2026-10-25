@@ -228,3 +228,28 @@ neoForge {
 
 def gameTestReportDirectory = layout.buildDirectory.dir('reports')
 tasks.named('runGameTestServer') { doFirst { gameTestReportDirectory.get().asFile.mkdirs() } }
+
+// The dependency is built separately from pinned source. It is never jar-in-jar bundled.
+def colonyCacheRoot = file(System.getenv('KINGDOMS_DEPENDENCY_CACHE') ?: '.gradle')
+def colonyJar = new File(colonyCacheRoot, 'minecolonies/9901957777e3dc8cf8119826c619654a48ae486e/minecolonies-1.1.1403-port26.1.2-0.7.1-publish.jar')
+dependencies {
+    implementation files(colonyJar)
+    gameTestImplementation files(colonyJar)
+}
+
+neoForge.runs.configureEach {
+    def proxyUrl = System.getenv('HTTPS_PROXY')
+    if (proxyUrl) {
+        def proxy = new URI(proxyUrl)
+        systemProperty 'https.proxyHost', proxy.host
+        systemProperty 'https.proxyPort', Integer.toString(proxy.port > 0 ? proxy.port : 80)
+    }
+    if (file('/etc/ssl/certs/java/cacerts').exists()) {
+        systemProperty 'javax.net.ssl.trustStore', '/etc/ssl/certs/java/cacerts'
+    }
+}
+
+tasks.named('jar') {
+    from('LICENSE') { into 'META-INF'; rename { 'LICENSE.kingdomsofminecraft' } }
+    from('ASSET_ATTRIBUTION.md') { into 'META-INF'; rename { 'NOTICE.kingdomsofminecraft.md' } }
+}

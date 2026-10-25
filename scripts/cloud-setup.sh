@@ -21,5 +21,6 @@ PY
 fi
 export JAVA_HOME="$toolchains/jdk-25+36"
 export PATH="$JAVA_HOME/bin:$PATH"
+python3 scripts/setup-minecolonies.py
 ./scripts/test-core.sh
 python3 scripts/gradle-cloud.py build

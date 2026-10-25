@@ -2,6 +2,9 @@ name: Core contracts
 on: [push, pull_request]
 permissions:
   contents: read
+concurrency:
+  group: core-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
 jobs:
   persistence:
     runs-on: ubuntu-latest

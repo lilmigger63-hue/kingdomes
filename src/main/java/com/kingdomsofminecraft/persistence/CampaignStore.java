@@ -14,7 +14,7 @@ import java.util.zip.CRC32;
  */
 public final class CampaignStore {
     private static final int MAGIC = 0x4b4f4d43;
-    private static final int SCHEMA = 4;
+    private static final int SCHEMA = 5;
     private static final int MAX_FILE_BYTES = 262144;
     private final Path file;
 
@@ -84,8 +84,16 @@ public final class CampaignStore {
                 if (capital > 1) throw new IOException("Invalid capital flag");
                 sites.add(new Settlement(id,name,owner,region,capital==1));
             }
+            if (schema == 4) {
+                if(input.available() != 0) throw new IOException("Trailing schema 4 data");
+                return new CampaignState(worldSeed,step,kingdoms,allegiances,treaties,sites);
+            }
+            int bindingCount=input.readInt();
+            if (bindingCount < 0 || bindingCount > 128) throw new IOException("Invalid colony binding count");
+            var bindings=new ArrayList<ColonyBinding>(bindingCount);
+            for (int i=0;i<bindingCount;i++) bindings.add(new ColonyBinding(new ColonyKey(input.readUTF(),input.readInt()),input.readInt()));
             if(input.available() != 0) throw new IOException("Trailing campaign data");
-            return new CampaignState(worldSeed, step, kingdoms, allegiances, treaties, sites);
+            return new CampaignState(worldSeed,step,kingdoms,allegiances,treaties,sites,bindings);
         } catch (IllegalArgumentException | NullPointerException error) {
             throw new IOException("Invalid campaign data: " + file, error);
         }
@@ -119,6 +127,10 @@ public final class CampaignStore {
                 output.writeInt(site.id()); output.writeUTF(site.name()); output.writeInt(site.kingdomId());
                 output.writeUTF(site.region().dimension()); output.writeInt(site.region().x()); output.writeInt(site.region().z());
                 output.writeBoolean(site.capital());
+            }
+            output.writeInt(state.colonies().size());
+            for (var binding : state.colonies()) {
+                output.writeUTF(binding.colony().dimension()); output.writeInt(binding.colony().colonyId()); output.writeInt(binding.kingdomId());
             }
             CRC32 checksum=new CRC32(); checksum.update(bytes.toByteArray()); output.writeLong(checksum.getValue());
         }

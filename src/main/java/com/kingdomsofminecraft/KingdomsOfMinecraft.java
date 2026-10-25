@@ -1,7 +1,7 @@
 package com.kingdomsofminecraft;
 
 import com.kingdomsofminecraft.campaign.CampaignState;
-import com.kingdomsofminecraft.campaign.Region;
+import com.kingdomsofminecraft.integration.MineColoniesAdapter;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.core.BlockPos;
@@ -111,53 +111,60 @@ public final class KingdomsOfMinecraft {
                 }))
                 .then(Commands.literal("territory").executes(context -> {
                     if (state == null) return 0;
-                    var region = currentRegion(context.getSource());
-                    var owner = state.ownerOf(region);
-                    context.getSource().sendSuccess(() -> Component.literal(region.dimension() + " region " + region.x() + ", " + region.z()
-                            + (owner.isPresent() ? ": kingdom " + owner.getAsInt() : ": unclaimed")), false);
-                    return 1;
-                }))
-                .then(Commands.literal("settlements").executes(context -> {
-                    if (state == null) return 0;
-                    context.getSource().sendSuccess(() -> Component.literal("Registered sites: " + state.settlements().size()), false);
-                    for (var site : state.settlements()) {
-                        context.getSource().sendSuccess(() -> Component.literal("[" + site.id() + "] " + site.name() + ": kingdom " + site.kingdomId()
-                                + (site.capital() ? " (capital)" : "") + ", " + site.region().dimension() + " region " + site.region().x() + ", " + site.region().z()), false);
+                    var source=context.getSource();
+                    var position=BlockPos.containing(source.getPosition());
+                    if (!source.getLevel().hasChunk(Math.floorDiv(position.getX(),16),Math.floorDiv(position.getZ(),16))) {
+                        source.sendSuccess(() -> Component.literal("Area unloaded; positional colony lookup skipped. Use /kingdoms colonies."),false);
+                        return 1;
                     }
+                    var colony=MineColoniesAdapter.at(source.getLevel(),position);
+                    source.sendSuccess(() -> Component.literal(colony.map(c -> "Colony " + c.key().colonyId() + ": " + c.name())
+                            .orElse("No MineColonies colony at this position")), false);
                     return 1;
                 }))
+                .then(Commands.literal("settlements").executes(context -> showColonies(context.getSource())))
+                .then(Commands.literal("colonies").executes(context -> showColonies(context.getSource()))
+                        .then(Commands.literal("bind").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .then(Commands.argument("colony",IntegerArgumentType.integer(1))
+                                        .then(Commands.argument("kingdom",IntegerArgumentType.integer(0)).executes(context -> {
+                                            if (state == null) return 0;
+                                            var source=context.getSource();
+                                            var colony=MineColoniesAdapter.find(source.getLevel(),IntegerArgumentType.getInteger(context,"colony"));
+                                            if (colony.isEmpty()) { source.sendFailure(Component.literal("Unknown colony in this dimension")); return 0; }
+                                            try {
+                                                var next=state.bindColony(colony.get().key(),IntegerArgumentType.getInteger(context,"kingdom"));
+                                                store.save(next);
+                                                state=next;
+                                                source.sendSuccess(() -> Component.literal("Colony political allegiance recorded; MineColonies player permissions are unchanged"), true);
+                                                return 1;
+                                            } catch (IllegalArgumentException | IOException error) {
+                                                source.sendFailure(Component.literal(error.getMessage())); return 0;
+                                            }
+                                        })))))
                 .then(Commands.literal("settlement").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.argument("kingdom", IntegerArgumentType.integer(0))
                                 .then(Commands.argument("name", StringArgumentType.string()).executes(context -> {
-                                    if (state == null) return 0;
-                                    try {
-                                        state = state.registerSettlement(StringArgumentType.getString(context,"name"),
-                                                IntegerArgumentType.getInteger(context,"kingdom"), currentRegion(context.getSource()));
-                                        save();
-                                        context.getSource().sendSuccess(() -> Component.literal("Registered strategic settlement site. No buildings or blocks were changed."), true);
-                                        return 1;
-                                    } catch (IllegalArgumentException error) {
-                                        context.getSource().sendFailure(Component.literal(error.getMessage()));
-                                        return 0;
-                                    }
+                                    context.getSource().sendFailure(Component.literal("Standalone sites are legacy data. Create a MineColonies colony, then use /kingdoms colonies bind."));
+                                    return 0;
                                 }))))
                 .then(Commands.literal("capital").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("settlement", IntegerArgumentType.integer(0)).executes(context -> {
-                            if (state == null) return 0;
-                            try {
-                                state = state.designateCapital(IntegerArgumentType.getInteger(context,"settlement"));
-                                save();
-                                context.getSource().sendSuccess(() -> Component.literal("Capital designation updated"), true);
-                                return 1;
-                            } catch (IllegalArgumentException error) {
-                                context.getSource().sendFailure(Component.literal(error.getMessage()));
-                                return 0;
-                            }
+                        .then(Commands.argument("settlement",IntegerArgumentType.integer(0)).executes(context -> {
+                            context.getSource().sendFailure(Component.literal("Legacy capital setup is disabled; MineColonies Town Halls administer colonies. Political capital mapping is pending."));
+                            return 0;
                         }))));
     }
 
-    private static Region currentRegion(net.minecraft.commands.CommandSourceStack source) {
-        var position = BlockPos.containing(source.getPosition());
-        return Region.atBlock(source.getLevel().dimension().identifier().toString(), position.getX(), position.getZ());
+    private int showColonies(net.minecraft.commands.CommandSourceStack source) {
+        if (state == null) return 0;
+        var colonies=MineColoniesAdapter.discover(source.getLevel());
+        source.sendSuccess(() -> Component.literal("MineColonies colonies: " + colonies.size()),false);
+        for (var colony:colonies) {
+            var allegiance=state.colonies().stream().filter(b -> b.colony().equals(colony.key())).findFirst();
+            source.sendSuccess(() -> Component.literal("[" + colony.key().colonyId() + "] " + colony.name()
+                    + "; player owner " + colony.playerOwnerName() + "; citizens " + colony.population() + "; buildings " + colony.buildings() + "; Town Hall level " + colony.townHallLevel()
+                    + allegiance.map(b -> "; kingdom " + b.kingdomId()).orElse("; politically unassigned")),false);
+        }
+        return colonies.size();
     }
+
 }

@@ -7,7 +7,7 @@ import java.util.Locale;
 
 /** Immutable strategic data. No Minecraft objects or loaded chunks are retained. */
 public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> kingdoms,
-                            List<ClanAllegiance> allegiances, List<Treaty> treaties, List<Settlement> settlements) {
+                            List<ClanAllegiance> allegiances, List<Treaty> treaties, List<Settlement> settlements, List<ColonyBinding> colonies) {
     public CampaignState(long worldSeed, long simulationStep) {
         this(worldSeed, simulationStep, KingdomFounding.generate(worldSeed));
     }
@@ -19,12 +19,18 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
                          List<ClanAllegiance> allegiances, List<Treaty> treaties) {
         this(worldSeed, simulationStep, kingdoms, allegiances, treaties, List.of());
     }
+    public CampaignState(long worldSeed, long simulationStep, List<Kingdom> kingdoms,
+                         List<ClanAllegiance> allegiances, List<Treaty> treaties, List<Settlement> settlements) {
+        this(worldSeed, simulationStep, kingdoms, allegiances, treaties, settlements, List.of());
+    }
     public CampaignState {
         if (simulationStep < 0) throw new IllegalArgumentException("Negative campaign time");
         kingdoms = List.copyOf(kingdoms);
         allegiances = List.copyOf(allegiances);
         treaties = List.copyOf(treaties);
         settlements = List.copyOf(settlements);
+        colonies = List.copyOf(colonies);
+        if (colonies.size() > 128) throw new IllegalArgumentException("At most 128 colony bindings");
         if (settlements.size() > 128) throw new IllegalArgumentException("At most 128 settlements");
         if (allegiances.size() > 64 || treaties.size() > 190) throw new IllegalArgumentException("Political state limit exceeded");
         if (kingdoms.size() > 20) throw new IllegalArgumentException("At most 20 kingdoms");
@@ -56,9 +62,14 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
                     || !siteNames.add(site.name().toLowerCase(Locale.ROOT)) || (site.capital() && !capitals.add(site.kingdomId())))
                 throw new IllegalArgumentException("Invalid settlement ownership, duplicate site/region/name or capital");
         }
+        var physicalIds=new HashSet<ColonyKey>();
+        for (var binding : colonies) {
+            if (!ids.contains(binding.kingdomId()) || !physicalIds.add(binding.colony()))
+                throw new IllegalArgumentException("Unknown kingdom or duplicate colony binding");
+        }
     }
     public CampaignState advance() {
-        return new CampaignState(worldSeed, Math.incrementExact(simulationStep), kingdoms, allegiances, treaties, settlements);
+        return new CampaignState(worldSeed, Math.incrementExact(simulationStep), kingdoms, allegiances, treaties, settlements, colonies);
     }
     public CampaignState foundKingdom(Clan founder, String name, Banner banner) {
         if (kingdoms.size() == 20) throw new IllegalArgumentException("At most 20 kingdoms");
@@ -68,14 +79,14 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
         updated.add(new Kingdom(id+1, name, founder, banner));
         var members = new ArrayList<>(allegiances);
         members.add(new ClanAllegiance(founder, id+1));
-        return new CampaignState(worldSeed, simulationStep, updated, members, treaties, settlements);
+        return new CampaignState(worldSeed, simulationStep, updated, members, treaties, settlements, colonies);
     }
 
     public CampaignState joinClan(Clan clan, int kingdomId) {
         requireKingdom(kingdomId);
         var members = new ArrayList<>(allegiances);
         members.add(new ClanAllegiance(clan, kingdomId));
-        return new CampaignState(worldSeed, simulationStep, kingdoms, members, treaties, settlements);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, members, treaties, settlements, colonies);
     }
 
     public CampaignState transferClan(int clanId, int kingdomId) {
@@ -87,7 +98,7 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
             throw new IllegalArgumentException("Ruling clans cannot transfer allegiance");
         var members = new ArrayList<>(allegiances);
         members.set(members.indexOf(current), new ClanAllegiance(current.clan(), kingdomId));
-        return new CampaignState(worldSeed, simulationStep, kingdoms, members, treaties, settlements);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, members, treaties, settlements, colonies);
     }
 
     public boolean atWar(int a, int b) {
@@ -103,7 +114,7 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
         var updated=new ArrayList<>(treaties);
         updated.removeIf(t -> t.first()==first && t.second()==second);
         updated.add(new Treaty(first, second, war, simulationStep));
-        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, updated, settlements);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, updated, settlements, colonies);
     }
 
     public java.util.OptionalInt ownerOf(Region region) {
@@ -116,14 +127,14 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
         if (id == Integer.MAX_VALUE) throw new IllegalArgumentException("Settlement IDs exhausted");
         var updated=new ArrayList<>(settlements);
         updated.add(new Settlement(id+1, name, kingdomId, region, false));
-        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated, colonies);
     }
 
     public CampaignState designateCapital(int settlementId) {
         var target=requireSettlement(settlementId);
         var updated=settlements.stream().map(s -> s.kingdomId()==target.kingdomId()
                 ? new Settlement(s.id(), s.name(), s.kingdomId(), s.region(), s.id()==settlementId) : s).toList();
-        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated, colonies);
     }
 
     public CampaignState conquerSettlement(int settlementId, int kingdomId) {
@@ -133,7 +144,19 @@ public record CampaignState(long worldSeed, long simulationStep, List<Kingdom> k
         if (!atWar(target.kingdomId(),kingdomId)) throw new IllegalArgumentException("Conquest requires war");
         var updated=settlements.stream().map(s -> s.id()==settlementId
                 ? new Settlement(s.id(), s.name(), kingdomId, s.region(), false) : s).toList();
-        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated);
+        return new CampaignState(worldSeed, simulationStep, kingdoms, allegiances, treaties, updated, colonies);
+    }
+
+    public CampaignState bindColony(ColonyKey colony, int kingdomId) {
+        requireKingdom(kingdomId);
+        var existing=colonies.stream().filter(b -> b.colony().equals(colony)).findFirst();
+        if (existing.isPresent()) {
+            if (existing.get().kingdomId()==kingdomId) return this;
+            throw new IllegalArgumentException("Colony already bound; conquest integration is not implemented");
+        }
+        var updated=new ArrayList<>(colonies);
+        updated.add(new ColonyBinding(colony,kingdomId));
+        return new CampaignState(worldSeed,simulationStep,kingdoms,allegiances,treaties,settlements,updated);
     }
 
     private Settlement requireSettlement(int id) {

@@ -1,6 +1,10 @@
 # Changelog
 
 ## Unreleased
+- V5.2: replace custom settlement construction plans with required, separately installed MineColonies integration.
+- Typed colony discovery and explicit political bindings, without changing player permissions or force-loading lookup chunks.
+- Schema 5 preserves legacy sites and adds colony mappings; standalone site/capital setup is disabled.
+- Reproducible pinned dependency build, GPL-3.0-only distribution and a nine-check MineColonies release gate.
 - Strategic settlement/capital registry, dimension-aware regional ownership and wartime transfer core operation.
 - Operator registration/capital commands and public settlement/territory inspection, without block writes or chunk loading.
 - Schema 4 migration preserving old political state and creating no automatic claims.

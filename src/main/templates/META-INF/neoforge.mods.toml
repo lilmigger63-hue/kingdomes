@@ -85,3 +85,10 @@ Medieval fantasy campaign simulation alongside Minecraft survival.
 # stop your mod loading on the server for example.
 #[features.${mod_id}]
 #openGLVersion="[3.2,)"
+
+[[dependencies.${mod_id}]]
+    modId="minecolonies"
+    type="required"
+    versionRange="[1.1.1403-port26.1.2-0.7.1]"
+    ordering="AFTER"
+    side="BOTH"

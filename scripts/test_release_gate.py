@@ -10,11 +10,12 @@ import unittest
 GATE = Path(__file__).with_name('verify-release.py').resolve()
 
 class ReleaseGateTest(unittest.TestCase):
-    def gate(self, tag, accepted):
+    def gate(self, tag, accepted, candidate="v0.1.0-alpha", integration=None):
         with tempfile.TemporaryDirectory() as folder:
-            record = {'candidate_tag': 'v0.1.0-alpha', 'acceptance': {
+            record = {'candidate_tag': candidate, 'acceptance': {
                 'build': True, 'core_tests': True, 'mod_startup': True,
                 'world_save_reload': True, 'windows_singleplayer': accepted}}
+            if integration is not None: record['minecolonies']={'acceptance':integration}
             Path(folder, 'release-status.json').write_text(json.dumps(record))
             return subprocess.run([sys.executable, str(GATE)], cwd=folder,
                 env={**os.environ, 'GITHUB_REF_NAME': tag}, capture_output=True, text=True)
@@ -24,6 +25,14 @@ class ReleaseGateTest(unittest.TestCase):
         self.assertNotEqual(self.gate('v0.1.0-alpha', False).returncode, 0)
     def test_matching_verified_candidate_accepted(self):
         self.assertEqual(self.gate('v0.1.0-alpha', True).returncode, 0)
+
+    def test_minecolonies_milestone_requires_integration_evidence(self):
+        self.assertNotEqual(self.gate('v0.6.0-alpha',True,candidate='v0.6.0-alpha').returncode,0)
+    def test_minecolonies_partial_integration_rejected(self):
+        self.assertNotEqual(self.gate('v0.6.0-alpha',True,candidate='v0.6.0-alpha',integration={'compatible_dependency':True}).returncode,0)
+    def test_minecolonies_complete_fixture_accepted(self):
+        required=('compatible_dependency','colony_discovery_state','settlement_kingdom_mapping','building_reuse','ai_governor_construction','recruitment_logistics','save_load_synchronization','conquest_compatibility','performance_validation')
+        self.assertEqual(self.gate('v0.6.0-alpha',True,candidate='v0.6.0-alpha',integration=dict.fromkeys(required,True)).returncode,0)
 
 if __name__ == '__main__':
     unittest.main()

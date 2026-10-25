@@ -1,15 +1,17 @@
 # Current task
 
-Stage: Kingdoms — settlement ownership slice (milestone incomplete). Foundation platform/release acceptance remains pending.
+Active spec: docs/MINECOLONIES_V5_2.md overrides custom settlement construction in docs/MASTER_PROMPT.md. No new building/blueprint/citizen engine. Preserve other Kingdoms systems and the existing no-scheduler recovery instructions.
 
-Completed: persistent kingdom/clan/treaty data plus up to 128 settlement sites, exclusive dimension-qualified 512-block region ownership, capital replacement and validated wartime ownership transfer core operation. All existing transitions preserve sites. Schema 4 migrates schemas 1–3 with empty sites and retains political state.
+Completed this slice: official source/release compatibility research; pinned community MineColonies 26.1.2 source build and asset-provisioned boot; typed read-only colony discovery; operator political mapping keyed by dimension + colony ID; schema 5 migration from 1–4. No physical state/permissions are duplicated or rewritten. Old standalone registration/capital commands are disabled, with legacy data preserved.
 
-Commands: /kingdoms list shows kingdom IDs. Operators can use /kingdoms settlement <kingdomId> <name> at their current position (quote names with spaces), and /kingdoms capital <settlementId>. Public /kingdoms settlements and /kingdoms territory inspect metadata. No buildings, block protection, world generation or live conquest command exists. Registration does not change blocks or load chunks.
+Dependency: Forgotten409/NeoForge-MineColonies-Unofficial commit 9901957777e3dc8cf8119826c619654a48ae486e, version 1.1.1403-port26.1.2-0.7.1, separate publishJar. Run python3 scripts/setup-minecolonies.py before building; cloud-setup does this automatically. Compatible distribution now GPL-3.0-only, notices retained; no vendor source/JAR/assets embedded. See docs/MINECOLONIES_COMPATIBILITY.md for reproducible evidence.
 
-Verified: full build; 1,510 Java checks (21 persistence, 1,411 founding, 34 malformed saves, 23 politics/capacity, 21 territory); three Python release checks; two selected Minecraft sessions with operator permission rejection, remote chunk non-loading and custom settlement/capital restart. Clock 0 → 32 → 32 → 83. Independent review found no important defect. New source CI is checked after push.
+Commands: /kingdoms colonies (or settlements), /kingdoms colonies bind <colonyId> <kingdomId> (gamemaster permission, current dimension), /kingdoms territory in loaded chunks. Mapping does not transfer MineColonies player ownership. Rebinding is rejected until conquest synchronization is implemented.
 
-Next: build the early playable recruitment/army slice and settlement recruitment reserves, then derive actual military strength/supplies before autonomous strategic diplomacy. Political influence and full Kingdoms integration remain unfinished. Preserve survival compatibility and do not substitute arbitrary war timers for missing strategy.
+Local checks: 1,528 Java checks, six release-gate tests, full build and reproducible dependency cache-miss build; two selected real Minecraft sessions create a real colony, read metadata, preserve player ownership, reject unauthorized/conflicting mapping and retain custom political binding across campaign restart. Last clock 0 → 94 → 94 → 203. FakePlayer is test-only and causes upstream subscriber warnings; not a production AI governor. Full vanilla+MineColonies save restoration remains unverified (GameTest resets its world).
 
-Release gates remain pending: full world/client reload, Windows singleplayer, owner-required reviewer protection for milestone-release. No tag, release or scheduler enabled.
+Next: implement event-based colony lifecycle synchronization and real world save/reload validation, then supported governor construction/ownership policy through public APIs. Investigate Player-requiring APIs before automating AI establishment or conquest; do not manipulate colony NBT or assume fake-player test success proves production governor support. Recruitment/logistics must not duplicate guards or warehouse items. Normal client tools/builders/upgrades and performance need actual validation.
 
-Branch development/foundation, draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. Exact checkpoint: git HEAD/remote. Authoritative token usage unavailable. Read this and CODEX_CONTEXT.md first; do not recreate completed work.
+Do not release 0.6.0-alpha until all nine MineColonies acceptance groups pass. Release gate enforces them. Foundation Windows/full world checks and owner-configured milestone-release reviewer protection remain pending; no release/tag/scheduler enabled.
+
+Existing branch development/foundation, draft PR https://github.com/lilmigger63-hue/kingdomes/pull/1. Exact checkpoint: git HEAD/remote. Authoritative token usage unavailable; do not restart completed investigation.

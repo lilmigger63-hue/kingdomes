@@ -31,3 +31,14 @@ All campaign transitions carry the site registry. Capital designation atomically
 Schema 4 appends site count and records (ID, modified-UTF name, owner ID, dimension identifier, region x/z, canonical capital byte) to schema 3's payload before CRC. Schemas 1–3 migrate with empty sites; no old campaign gains territorial claims automatically. The file bound is now 256 KiB, tested with maximal 20 kingdoms, 64 clans, 190 treaties and 128 sites including long UTF names/dimension identifiers. Older builds cannot load schema 4.
 
 Operator setup commands require Minecraft's gamemaster permission; inspection is public. The Minecraft integration test runs at a remote unloaded region and checks that metadata operations do not load it.
+
+
+## MineColonies V5.2 boundary / schema 5
+
+V5.2 supersedes standalone physical settlement plans. The required, separately built port is pinned in dependencies/minecolonies.json. MineColonies owns physical identity, buildings, jobs, inventories and player permissions; Kingdoms owns political allegiance. MineColoniesAdapter reads live IColony metadata on the server thread. Its positional API guard avoids upstream getChunkAt for unloaded chunks; no new physical-state simulation or force-loading is introduced.
+
+ColonyKey=(dimension, positive colony ID), not mutable name/center. CampaignState stores at most 128 ColonyBindings, with unique physical keys and known kingdom references, and carries them through every existing transition. Explicit operator binding never changes MineColonies permissions and rejects different-kingdom rebinding until safe conquest exists. Old site/capital setup is disabled; legacy records remain for migration, with no automatic mapping to colonies. Current colony snapshots are not serialized as competing physical state.
+
+Schema 5 appends binding count and (dimension UTF, colony ID int, kingdom ID int) after schema 4 sites, before CRC. Older schemas gain an empty binding list and retain their state. Bounds and atomic replacement remain. Read/write of MineColonies world data remains exclusively its own responsibility; full lifecycle synchronization and integrated reload acceptance are pending.
+
+The integration is GPL-3.0-only with retained notices. Dependency code, JAR and restricted assets never enter the Kingdoms JAR. The source-build helper rejects dirty reused source checkouts and verifies cached artifact checksums. Setup and Gradle resolve the same optional KINGDOMS_DEPENDENCY_CACHE root. Source cache is a build dependency cache, not a separate project checkout.

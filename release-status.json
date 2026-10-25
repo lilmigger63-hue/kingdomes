@@ -10,10 +10,26 @@
   },
   "local_artifact": {
     "path": "build/libs/kingdomsofminecraft-0.1.0-alpha.jar",
-    "sha256": "d6f693d0a29a8a50bb05e3bce534c2ee54f5d8497e8126dc0769fe7e85960a03"
+    "sha256": "d804cc84712fbcf03f94397ffe5dff98807e03c98e853ed4a89accb0e03341ea"
   },
   "publication_blockers": [
     "Full world reload and Windows singleplayer acceptance unrun",
     "Owner must configure required reviewers on milestone-release; integration received HTTP 403"
-  ]
+  ],
+  "minecolonies": {
+    "repository": "Forgotten409/NeoForge-MineColonies-Unofficial",
+    "commit": "9901957777e3dc8cf8119826c619654a48ae486e",
+    "version": "1.1.1403-port26.1.2-0.7.1",
+    "acceptance": {
+      "compatible_dependency": true,
+      "colony_discovery_state": true,
+      "settlement_kingdom_mapping": true,
+      "building_reuse": false,
+      "ai_governor_construction": false,
+      "recruitment_logistics": false,
+      "save_load_synchronization": false,
+      "conquest_compatibility": false,
+      "performance_validation": false
+    }
+  }
 }
