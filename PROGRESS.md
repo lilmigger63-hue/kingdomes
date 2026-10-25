@@ -2,13 +2,13 @@
 
 ```text
 KINGDOMS OF MINECRAFT
-Progress: 12.3%
+Progress: 10.6%
 [##------------------]
-Verified tasks: 9/27
-Current stage: MineColonies integration (initial adapter; other milestones unfinished)
+Verified tasks: 8/28
+Current stage: MineColonies and Tectonic integration (initial terrain adapter)
 Build status: PASS
 Latest release: None
 Tokens used: Unavailable
 ```
 
-V5.2 rebaseline: the former standalone settlement/capital group loses its 2% credit because its commands are superseded. Colony-backed capitals/territorial claims remain pending. The MineColonies stage retains the user-specified 13% weight, split into nine equal integration groups; dependency, discovery and explicit political mapping are verified. Upstream buildings, workers, styles and construction features receive **no** new Kingdoms implementation credit. Remaining integration, gameplay and platform checks are unfinished.
+V5.3 rebaseline: stage 6 retains the user-specified 13% weight, now divided into ten combined integration groups. Compatible dependencies and Tectonic terrain integration are verified; the remaining eight combined outcomes, including full MineColonies integration, are not complete. Existing MineColonies subchecks remain recorded in release-status.json. This broader acceptance scope changes the percentage from V5.2; no existing code was discarded. Upstream Tectonic terrain, MineColonies buildings and source fixtures receive no new implementation credit. Terrain-role screening is advisory, not verified automatic settlement placement.

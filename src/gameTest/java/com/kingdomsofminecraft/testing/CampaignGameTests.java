@@ -28,6 +28,7 @@ public final class CampaignGameTests {
             DeferredRegister.create(BuiltInRegistries.TEST_FUNCTION, ID);
     static {
         FUNCTIONS.register("campaign_lifecycle", () -> CampaignGameTests::campaignLifecycle);
+        FUNCTIONS.register("terrain_sampling", () -> TerrainGameTests::terrain);
     }
     public CampaignGameTests(IEventBus bus) {
         FUNCTIONS.register(bus);

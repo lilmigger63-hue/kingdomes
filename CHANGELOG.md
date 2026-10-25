@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- V5.3: require official compatible Tectonic/Lithostitched with SHA-512-verified separate installation; no custom terrain engine.
+- Loaded-only cached geographic observations and advisory settlement-role screening.
+- Fresh normal-noise Tectonic generation test, lava safety regression and combined stage-6 release acceptance.
 - V5.2: replace custom settlement construction plans with required, separately installed MineColonies integration.
 - Typed colony discovery and explicit political bindings, without changing player permissions or force-loading lookup chunks.
 - Schema 5 preserves legacy sites and adds colony mappings; standalone site/capital setup is disabled.

@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "kingdomsofminecraft_tests:terrain_sampling",
+  "environment": "minecraft:default",
+  "structure": "kingdomsofminecraft_tests:empty",
+  "max_ticks": 400
+}

@@ -92,3 +92,16 @@ Medieval fantasy campaign simulation alongside Minecraft survival.
     versionRange="[1.1.1403-port26.1.2-0.7.1]"
     ordering="AFTER"
     side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="tectonic"
+    type="required"
+    versionRange="[3.0.28]"
+    ordering="AFTER"
+    side="BOTH"
+[[dependencies.${mod_id}]]
+    modId="lithostitched"
+    type="required"
+    versionRange="[1.8.1]"
+    ordering="AFTER"
+    side="BOTH"

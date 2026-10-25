@@ -253,3 +253,11 @@ tasks.named('jar') {
     from('LICENSE') { into 'META-INF'; rename { 'LICENSE.kingdomsofminecraft' } }
     from('ASSET_ATTRIBUTION.md') { into 'META-INF'; rename { 'NOTICE.kingdomsofminecraft.md' } }
 }
+
+// Separate, checksummed upstream JARs; no terrain implementation or embedded dependencies.
+def terrainSpec = new groovy.json.JsonSlurper().parseText(providers.fileContents(layout.projectDirectory.file('dependencies/terrain.json')).asText.get())
+def terrainJars = terrainSpec.artifacts.collect { artifact -> new File(colonyCacheRoot, "terrain/${artifact.version_id}/${artifact.filename}") }
+dependencies {
+    implementation files(terrainJars)
+    gameTestImplementation files(terrainJars)
+}

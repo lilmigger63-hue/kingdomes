@@ -42,3 +42,11 @@ Replaced custom physical-settlement plans with the real MineColonies integration
 Verified 1,528 Java checks, six release-gate tests, full build, reproducible dependency/cloud setup and two real-colony Minecraft sessions. Review fixes verified by failure/success reproductions for external caches and dirty source. Positional lookup force-loading was found and fixed with a tested loaded-chunk guard. FakePlayer is a test-only owner; subscriber warnings do not establish AI governor support.
 
 Ruling: use the supplied pinned community port as the working 26.1.2 candidate because inspected official branches/releases target older Minecraft. Keep physical state authoritative in MineColonies and store political identity mappings only. Do not invent colonies while migrating old metadata. Rebaseline the superseded 2% standalone ownership/capital credit to unverified colony-backed work; award only the three verified MineColonies integration groups. Progress 12.3%, with no upstream building feature credit and no 0.6 release claim. Remaining integration/client/governor/logistics/conquest/performance work is checkpointed in CURRENT_TASK.md.
+
+## 2026-10-25 — V5.3 official Tectonic and geographic observations
+
+Pinned official compatible Tectonic/Lithostitched artifacts with SHA-512 checks, preserved MineColonies and added loaded-only geographic sampling/cache and advisory role screening. No custom terrain engine. Real fresh Tectonic noise data tested in an isolated extra dimension; production contains no test preset or worldgen override. Ocean observations are rejected as village candidates; full terrain-category construction/distribution/routes/movement remain unfinished.
+
+Review lava hazard reproduced and fixed; 1,548 Java checks, eight release tests, full cloud build/setup and two Minecraft sessions with two selected tests each passed. Remaining acceptance, source CI and exact source revision are tracked through GitHub and CURRENT_TASK.md.
+
+Ruling: do not credit advisory screening as actual automatic placement or synthetic profiles as real mountain/valley/river/coastal construction. Rebaseline stage 6 to ten V5.3 groups while retaining all nine MineColonies release checks. Progress 10.6% under the broader scope; existing implementation is preserved and no upstream terrain/building feature credit is added.

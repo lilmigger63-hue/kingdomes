@@ -17,4 +17,10 @@ if tag.startswith('v0.6.'):
     integration = state.get('minecolonies', {}).get('acceptance', {})
     if not all(integration.get(key) is True for key in integration_required):
         raise SystemExit('MineColonies milestone acceptance is incomplete')
+    terrain_required = ('compatible_dependencies','minecolonies_settlement_integration','tectonic_terrain_integration',
+                        'terrain_aware_settlement_placement','kingdom_geographic_distribution','geographic_military_movement_costs',
+                        'territory_mapping','strategic_road_planning','save_load_verification','performance_testing')
+    terrain = state.get('terrain_integration', {}).get('acceptance', {})
+    if not all(terrain.get(key) is True for key in terrain_required):
+        raise SystemExit('Combined MineColonies/Tectonic milestone acceptance is incomplete')
 print('Recorded milestone acceptance passed; CI build also required')

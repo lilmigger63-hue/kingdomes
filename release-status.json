@@ -10,7 +10,7 @@
   },
   "local_artifact": {
     "path": "build/libs/kingdomsofminecraft-0.1.0-alpha.jar",
-    "sha256": "d804cc84712fbcf03f94397ffe5dff98807e03c98e853ed4a89accb0e03341ea"
+    "sha256": "8412108bcddf8210ba9070e32e332e936160704469387828794f5619489ab0ae"
   },
   "publication_blockers": [
     "Full world reload and Windows singleplayer acceptance unrun",
@@ -30,6 +30,44 @@
       "save_load_synchronization": false,
       "conquest_compatibility": false,
       "performance_validation": false
+    }
+  },
+  "terrain_integration": {
+    "dependencies": {
+      "minecraft": "26.1.2",
+      "loader": "neoforge",
+      "artifacts": [
+        {
+          "mod_id": "tectonic",
+          "project_id": "lWDHr9jE",
+          "version_id": "RNLd3nvP",
+          "version": "3.0.28-neoforge-26.1",
+          "filename": "tectonic-3.0.28-neoforge-26.1.jar",
+          "url": "https://cdn.modrinth.com/data/lWDHr9jE/versions/RNLd3nvP/tectonic-3.0.28-neoforge-26.1.jar",
+          "sha512": "edeeffa06fd75d4578d7c6490a229b5694dec602ad3f164a8757b9d4894570ad777a33ebf3c712a97d09094627841c450a32cae40219c74d131b8093cf3fdeff"
+        },
+        {
+          "mod_id": "lithostitched",
+          "project_id": "XaDC71GB",
+          "version_id": "pLlJIqyp",
+          "version": "1.8.1-neoforge-26.1",
+          "filename": "lithostitched-1.8.1-neoforge-26.1.jar",
+          "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/pLlJIqyp/lithostitched-1.8.1-neoforge-26.1.jar",
+          "sha512": "2d4bec8cda3c9f18f6806bf757c7c9352e86454237b35239d59b11e28a98023a106ea8ecd7137ea46a397f2ff7a5ce1d4e0e532fd53ecda6e6c5e51b0e1c7a61"
+        }
+      ]
+    },
+    "acceptance": {
+      "compatible_dependencies": true,
+      "minecolonies_settlement_integration": false,
+      "tectonic_terrain_integration": true,
+      "terrain_aware_settlement_placement": false,
+      "kingdom_geographic_distribution": false,
+      "geographic_military_movement_costs": false,
+      "territory_mapping": false,
+      "strategic_road_planning": false,
+      "save_load_verification": false,
+      "performance_testing": false
     }
   }
 }

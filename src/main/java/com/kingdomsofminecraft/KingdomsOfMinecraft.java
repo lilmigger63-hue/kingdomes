@@ -2,6 +2,9 @@ package com.kingdomsofminecraft;
 
 import com.kingdomsofminecraft.campaign.CampaignState;
 import com.kingdomsofminecraft.integration.MineColoniesAdapter;
+import com.kingdomsofminecraft.integration.LoadedTerrainSampler;
+import com.kingdomsofminecraft.geography.SiteRole;
+import java.util.Locale;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.core.BlockPos;
@@ -24,6 +27,7 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 @Mod(KingdomsOfMinecraft.MOD_ID)
 public final class KingdomsOfMinecraft {
     public static final String MOD_ID = "kingdomsofminecraft";
+    private final LoadedTerrainSampler terrain=new LoadedTerrainSampler();
     private CampaignStore store;
     private CampaignState state;
 
@@ -35,6 +39,7 @@ public final class KingdomsOfMinecraft {
     }
 
     private void starting(ServerStartingEvent event) {
+        terrain.clear();
         store = new CampaignStore(event.getServer().getWorldPath(LevelResource.ROOT)
                 .resolve(MOD_ID).resolve("campaign.dat"));
         try {
@@ -55,7 +60,7 @@ public final class KingdomsOfMinecraft {
 
     private void stopping(ServerStoppingEvent event) {
         if (state == null) return;
-        try { save(); } finally { state = null; store = null; }
+        try { save(); } finally { state = null; store = null; terrain.clear(); }
     }
 
     private void save() {
@@ -109,6 +114,25 @@ public final class KingdomsOfMinecraft {
                     }
                     return 1;
                 }))
+                .then(Commands.literal("site").then(Commands.argument("role",StringArgumentType.word()).executes(context -> {
+                    var source=context.getSource();
+                    SiteRole role;
+                    try { role=SiteRole.valueOf(StringArgumentType.getString(context,"role").toUpperCase(Locale.ROOT)); }
+                    catch(IllegalArgumentException error) {source.sendFailure(Component.literal("Roles: village, castle, trade, dwarven, elven, fort, coastal"));return 0;}
+                    var position=BlockPos.containing(source.getPosition());
+                    var cell=terrain.sample(source.getLevel(),Math.floorDiv(position.getX(),16),Math.floorDiv(position.getZ(),16));
+                    if(cell.isEmpty()){source.sendFailure(Component.literal("No usable loaded terrain sample here"));return 0;}
+                    var assessment=role.assess(cell.get());
+                    source.sendSuccess(() -> Component.literal("Terrain screen for " + role.name().toLowerCase(Locale.ROOT) + ": "
+                            + (assessment.suitable()?"candidate":"unsuitable") + "; score " + assessment.score()
+                            + "; dry samples " + cell.get().dry() + "/25; height " + cell.get().minY() + "–" + cell.get().maxY()
+                            + "; sampled " + (source.getLevel().getGameTime()-cell.get().sampledAt()) + " ticks ago"
+                            + "; water " + cell.get().water() + "; forest biome " + cell.get().forest()
+                            + "; river biome " + cell.get().river() + "; ocean biome " + cell.get().ocean()
+                            + (assessment.reasons().isEmpty()?"":"; " + String.join(", ",assessment.reasons()))
+                            + ". Advisory only: MineColonies blueprint fit, protection, resources and access still need checking."),false);
+                    return 1;
+                })))
                 .then(Commands.literal("territory").executes(context -> {
                     if (state == null) return 0;
                     var source=context.getSource();

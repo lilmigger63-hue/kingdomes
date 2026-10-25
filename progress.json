@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_stage": "MineColonies integration (initial adapter; other milestones unfinished)",
+  "current_stage": "MineColonies and Tectonic integration (initial terrain adapter)",
   "build_status": "PASS",
   "latest_release": null,
   "stages": [
@@ -91,43 +91,47 @@
       ]
     },
     {
-      "name": "MineColonies Integration and Kingdom Settlement Management",
+      "name": "MineColonies and Tectonic Integration",
       "weight": 13,
       "deliverables": [
         {
-          "id": "compatible_dependency",
+          "id": "compatible_dependencies",
           "verified": true
         },
         {
-          "id": "colony_discovery_state",
+          "id": "minecolonies_settlement_integration",
+          "verified": false
+        },
+        {
+          "id": "tectonic_terrain_integration",
           "verified": true
         },
         {
-          "id": "settlement_kingdom_mapping",
-          "verified": true
-        },
-        {
-          "id": "building_reuse",
+          "id": "terrain_aware_settlement_placement",
           "verified": false
         },
         {
-          "id": "ai_governor_construction",
+          "id": "kingdom_geographic_distribution",
           "verified": false
         },
         {
-          "id": "recruitment_logistics",
+          "id": "geographic_military_movement_costs",
           "verified": false
         },
         {
-          "id": "save_load_synchronization",
+          "id": "territory_mapping",
           "verified": false
         },
         {
-          "id": "conquest_compatibility",
+          "id": "strategic_road_planning",
           "verified": false
         },
         {
-          "id": "performance_validation",
+          "id": "save_load_verification",
+          "verified": false
+        },
+        {
+          "id": "performance_testing",
           "verified": false
         }
       ]

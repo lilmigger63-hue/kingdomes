@@ -1,0 +1,24 @@
+{
+  "minecraft": "26.1.2",
+  "loader": "neoforge",
+  "artifacts": [
+    {
+      "mod_id": "tectonic",
+      "project_id": "lWDHr9jE",
+      "version_id": "RNLd3nvP",
+      "version": "3.0.28-neoforge-26.1",
+      "filename": "tectonic-3.0.28-neoforge-26.1.jar",
+      "url": "https://cdn.modrinth.com/data/lWDHr9jE/versions/RNLd3nvP/tectonic-3.0.28-neoforge-26.1.jar",
+      "sha512": "edeeffa06fd75d4578d7c6490a229b5694dec602ad3f164a8757b9d4894570ad777a33ebf3c712a97d09094627841c450a32cae40219c74d131b8093cf3fdeff"
+    },
+    {
+      "mod_id": "lithostitched",
+      "project_id": "XaDC71GB",
+      "version_id": "pLlJIqyp",
+      "version": "1.8.1-neoforge-26.1",
+      "filename": "lithostitched-1.8.1-neoforge-26.1.jar",
+      "url": "https://cdn.modrinth.com/data/XaDC71GB/versions/pLlJIqyp/lithostitched-1.8.1-neoforge-26.1.jar",
+      "sha512": "2d4bec8cda3c9f18f6806bf757c7c9352e86454237b35239d59b11e28a98023a106ea8ecd7137ea46a397f2ff7a5ce1d4e0e532fd53ecda6e6c5e51b0e1c7a61"
+    }
+  ]
+}

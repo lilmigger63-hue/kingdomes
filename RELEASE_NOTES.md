@@ -9,3 +9,5 @@ Save format: schema 5. Existing schemas 1–4 migrate without rewriting during l
 Distribution license: GPL-3.0-only, with LICENSE and retained template/upstream attribution. Dependency code/assets are separate.
 
 AI governors, construction automation, normal client tool/warehouse/upgrade validation, military recruitment/logistics, full synchronized MineColonies world reload, safe conquest and performance are unfinished. Headless tests do not prove Windows singleplayer/UI readiness. This is not a completed 0.6.0-alpha integration release. No release has been published.
+
+V5.3 additionally requires separate official Tectonic 3.0.28 and Lithostitched 1.8.1 artifacts supporting 26.1.2. Run scripts/setup-terrain.py; hashes/URLs are pinned in dependencies/terrain.json. Tectonic supplies its own Apollib library. No terrain dependency or data is embedded in Kingdoms. /kingdoms site <role> offers cached loaded-chunk advice only; no automatic terrain-aware colony placement or geographic distribution is completed. Real mountain/valley/river/coastal construction, movement/routes, save compatibility and performance remain pending. Use a fresh test world.

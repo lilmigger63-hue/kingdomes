@@ -42,3 +42,12 @@ ColonyKey=(dimension, positive colony ID), not mutable name/center. CampaignStat
 Schema 5 appends binding count and (dimension UTF, colony ID int, kingdom ID int) after schema 4 sites, before CRC. Older schemas gain an empty binding list and retain their state. Bounds and atomic replacement remain. Read/write of MineColonies world data remains exclusively its own responsibility; full lifecycle synchronization and integrated reload acceptance are pending.
 
 The integration is GPL-3.0-only with retained notices. Dependency code, JAR and restricted assets never enter the Kingdoms JAR. The source-build helper rejects dirty reused source checkouts and verifies cached artifact checksums. Setup and Gradle resolve the same optional KINGDOMS_DEPENDENCY_CACHE root. Source cache is a build dependency cache, not a separate project checkout.
+
+
+## V5.3 terrain boundary
+
+Official Tectonic/Lithostitched artifacts are separately installed with pinned SHA-512 hashes. Tectonic owns terrain generation/configuration; Kingdoms defines no production noise/router/biome/continent/river replacements. Its required built-in terrain pack was inspected and runtime-resolved density data is checked in tests.
+
+LoadedTerrainSampler checks server-thread ownership and getChunkNow before observing 25 heightmap/fluid/biome columns in one chunk. It rejects missing/void/non-water-fluid surfaces. TerrainCache is bounded at 256 immutable dimension/chunk keys, expires at 1,200 ticks and is cleared on server start/stop. Unloaded cells remain unknown even if previously cached. Height observations can include vegetation/structures; forest/river/ocean cover is biome-tag coverage. SiteRole thresholds provide only conservative advisory scores, with age and rejection reasons exposed. Full blueprint space, protection, resources and accessibility are not established by these observations.
+
+No geographic cache is persisted as authoritative world state; it rebuilds from generated data. Strategic kingdom distribution, military movement and road graphs remain separate unfinished integrations. The only explicit chunk generation/preset override and hazard block fixture are confined to the isolated GameTest source set; production sampling and commands do not generate or mutate terrain.

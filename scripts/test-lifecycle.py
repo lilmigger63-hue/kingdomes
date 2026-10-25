@@ -31,8 +31,9 @@ def run(label, fixture=None):
     with log.open('w') as output:
         subprocess.run(args, cwd=root, stdout=output, stderr=subprocess.STDOUT, check=True, timeout=600)
     tests = list(ET.parse(report).getroot().iter('testcase'))
-    if len(tests) != 1 or any(list(t.iter('failure')) or list(t.iter('error')) or list(t.iter('skipped')) for t in tests):
-        raise RuntimeError(f'Expected one passing selected GameTest; inspect {report}')
+    expected={'kingdomsofminecraft_tests:campaign_lifecycle','kingdomsofminecraft_tests:terrain_sampling'}
+    if len(tests) != 2 or {t.attrib.get('name') for t in tests} != expected or any(list(t.iter('failure')) or list(t.iter('error')) or list(t.iter('skipped')) for t in tests):
+        raise RuntimeError(f'Expected both selected GameTests to pass; inspect {report}')
     text = log.read_text()
     if 'Missing element ResourceKey[minecraft:loot_table / minecolonies:' in text:
         raise RuntimeError(f'MineColonies data provisioning is incomplete: {log}')
@@ -48,5 +49,5 @@ shutil.copyfile(root / 'run/gametestserver/gametestworld/kingdomsofminecraft/cam
 second_loaded, second_saved = run('reload', fixture)
 if second_loaded != first_saved:
     raise RuntimeError(f'Campaign startup loaded {second_loaded}; shutdown saved {first_saved}')
-print(f'PASS: 2 selected Minecraft GameTest sessions; campaign steps {first_loaded} -> {first_saved} -> {second_loaded} -> {second_saved}')
+print(f'PASS: 2 selected Minecraft sessions (2 GameTests each); campaign steps {first_loaded} -> {first_saved} -> {second_loaded} -> {second_saved}')
 print('Full vanilla world reload and Windows singleplayer remain separate acceptance checks.')

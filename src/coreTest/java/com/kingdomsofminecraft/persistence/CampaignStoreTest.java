@@ -72,6 +72,7 @@ public final class CampaignStoreTest {
             PoliticsTest.main(args);
             TerritoryTest.main(args);
             ColonyMappingTest.main(args);
+            TerrainTest.main(args);
         } finally {
             try (var paths = Files.walk(dir)) {
                 for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) Files.delete(path);
