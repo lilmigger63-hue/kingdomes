@@ -1,0 +1,76 @@
+# Living Settlements 0.5.0 preset. Omitted keys use addon defaults.
+enabled = true
+startingPopulation = 4
+settlementRadius = 112
+
+[villageReplacement]
+enabled = true
+replacementChance = 0.50
+replaceExistingVillages = false
+preserveVanillaVillageFrequency = true
+deterministicSelection = true
+
+[settlementGeneration]
+spawnFrequencyMultiplier = 2.5
+adaptivePlacement = true
+enforceArbitraryDistanceLimits = false
+allowNearbySettlements = true
+allowRoughTerrain = true
+allowMountainSettlements = true
+allowRiversideSettlements = true
+allowLakesideSettlements = true
+allowForestSettlements = true
+allowValleySettlements = true
+allowCoastalSettlements = true
+terrainAdaptation = true
+tectonicCompatibility = true
+terralithCompatibility = true
+preventStructureOverlap = true
+
+[terraforming]
+enabled = true
+allowExcavation = true
+allowFilling = true
+allowTerraces = true
+allowRetainingWalls = true
+allowBridges = true
+allowStairways = true
+allowTerrainAdaptedRoads = true
+requireRealWorkers = true
+requireTools = true
+requireMaterials = true
+maxBlocksModifiedPerTick = 8
+maxConcurrentWorkersPerColony = 3
+
+[autonomousDevelopment]
+enabled = true
+simulateUnloadedColonies = true
+forceLoadChunks = false
+maxSettlementUpdatesPerTick = 2
+
+[autonomousMayor]
+enabled = true
+decisionIntervalTicks = 1200
+terrainAwarePlanning = true
+automaticExpansion = true
+automaticConstruction = true
+automaticUpgrades = true
+automaticJobAssignments = true
+automaticPopulationGrowth = true
+automaticResourceManagement = true
+automaticToolRequests = true
+automaticInfrastructurePlanning = true
+automaticDefensePlanning = true
+
+[settlementProgression]
+enabled = true
+startingWithTownHall = true
+startingResources = true
+maximumDevelopmentStage = 5
+requireConstructionResources = true
+maximumBuildings = 32
+maximumPopulation = 32
+
+[offlineProgression]
+# Shared enabled/update/force-load controls remain in autonomousDevelopment.
+maximumCatchupHours = 24

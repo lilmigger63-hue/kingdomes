@@ -1,0 +1,33 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="All Rights Reserved"
+
+[[mixins]]
+config="living_settlements.mixins.json"
+
+[[mods]]
+modId="living_settlements"
+version="${mod_version}"
+displayName="MineColonies: Living Settlements"
+description='''Autonomous NPC mayors, native colony construction and village replacement for the kingdoms modpack.'''
+
+[[dependencies.living_settlements]]
+modId="minecraft"
+type="required"
+versionRange="[26.1.2]"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.living_settlements]]
+modId="neoforge"
+type="required"
+versionRange="[26.1.2.124,26.1.3)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.living_settlements]]
+modId="minecolonies"
+type="required"
+versionRange="[1.1.1399-port26.1.2-0.6.0]"
+ordering="AFTER"
+side="BOTH"

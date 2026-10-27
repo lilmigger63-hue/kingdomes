@@ -1,0 +1,11 @@
+.gradle/
+build/
+dist/
+run/
+.tools/
+.research/
+libs/*.jar
+port-research.properties
+*.log
+.idea/
+*.iml

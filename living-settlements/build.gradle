@@ -1,0 +1,65 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.gradle.userdev' version '7.1.38'
+}
+
+version = mod_version
+group = 'dev.kingdoms.livingsettlements'
+base { archivesName = 'living-settlements' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+
+sourceSets {
+    gameTest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+configurations.gameTestImplementation.extendsFrom(configurations.implementation)
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://cursemaven.com'
+        content { includeGroup 'curse.maven' }
+    }
+}
+
+dependencies {
+    implementation "net.neoforged:neoforge:${neo_version}"
+    // Compile against the exact release in kingdoms.zip; never bundle it.
+    def localPort = file("libs/minecolonies-${minecolonies_version}-publish.jar")
+    if (localPort.exists()) {
+        implementation files(localPort)
+    } else {
+        implementation 'curse.maven:minecolonies-unofficial-port-1713567:9004393'
+    }
+    testImplementation platform('org.junit:junit-bom:5.12.2')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+runs {
+    configureEach {
+        workingDirectory project.layout.projectDirectory.dir('run').dir(name)
+        modSource project.sourceSets.main
+    }
+    client {}
+    server { argument '--nogui' }
+    gameTestServer {
+        modSources { add('living_settlements_tests', project.sourceSets.gameTest) }
+        systemProperty 'neoforge.enabledGameTestNamespaces', 'living_settlements_tests'
+        if (project.hasProperty('gameTestSelection')) {
+            argument '--tests'
+            argument project.property('gameTestSelection').toString()
+        }
+    }
+}
+
+tasks.named('test', Test) { useJUnitPlatform() }
+tasks.named('processResources', ProcessResources) {
+    inputs.property 'mod_version', project.version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand mod_version: project.version
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8' }

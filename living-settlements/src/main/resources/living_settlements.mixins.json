@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.kingdoms.livingsettlements.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": ["VillageGenerationMixin", "MayorHiringMixin", "MayorDeliveryMixin", "NativeWorkerAccess", "NativeWorkerBudgetMixin", "NativeWorkerStepMixin"],
+  "injectors": {"defaultRequire": 1}
+}

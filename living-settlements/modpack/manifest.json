@@ -1,0 +1,38 @@
+{
+  "minecraft": {
+    "version": "26.1.2",
+    "modLoaders": [
+      {
+        "id": "neoforge-26.1.2.124",
+        "primary": true
+      }
+    ]
+  },
+  "manifestType": "minecraftModpack",
+  "manifestVersion": 1,
+  "name": "kingdoms",
+  "version": "",
+  "author": "",
+  "overrides": "overrides",
+  "files": [
+    {
+      "projectID": 936015,
+      "fileID": 9170254,
+      "required": true,
+      "isLocked": false
+    },
+    {
+      "projectID": 1713567,
+      "fileID": 9004393,
+      "required": true,
+      "isLocked": false
+    },
+    {
+      "projectID": 686836,
+      "fileID": 8855046,
+      "required": true,
+      "isLocked": false
+    }
+  ],
+  "image": "profileImage/li3w1akgzf0c1.jpg"
+}
